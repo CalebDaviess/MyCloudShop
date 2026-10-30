@@ -1,4 +1,12 @@
 <?php
+// Simple database connection 
+$serverName = "tcp:mycardiffmet-caleb.database.windows.net,1433"; $connectionOptions = array( 
+"Database" => "myDatabase", 
+"Uid" => "myadmin", 
+"PWD" => "Flapjack200311!", 
+"Encrypt" => 1, 
+"TrustServerCertificate" => 0 
+);
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
