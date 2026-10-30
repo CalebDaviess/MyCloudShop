@@ -14,13 +14,6 @@ Open `http://localhost:8000`.
 
 ## Registration database
 
-Registration uses SQLite by default, which requires PHP's `pdo_sqlite` extension (available in the Codespace). The app creates `data/myshop.sqlite` and the `shopusers` table automatically. This local database file is ignored by Git.
+The app connects directly to Azure SQL using the server, database, and login configured in `process_register.php`. Set `DB_PASSWORD` in Azure App Service environment variables; do not put the password in source control. Restart the App Service after adding the setting.
 
-On Azure App Service, the deployment workflow configures the SQL Server driver selection and non-secret connection settings. Add `SQLSRV_PWD` as an App Service environment variable (never in source control), then restart the app. Outside Azure, set `MYSHOP_DB_DRIVER=sqlsrv` and configure these environment variables:
-
-- `SQLSRV_SERVER`: SQL Server host/instance
-- `SQLSRV_DATABASE`: database name
-- `SQLSRV_UID`: database username
-- `SQLSRV_PWD`: database password
-
-The SQL Server database must contain a `shopusers` table with `name`, `email`, and `password` columns. The App Service Linux PHP runtime must also provide Microsoft's `sqlsrv` PHP extension and ODBC Driver 18. For SQLite, set `MYSHOP_DB_PATH` to override the default database file location. Passwords are stored using PHP's `password_hash()`. Never commit database credentials; `.env` is ignored by Git.
+The App Service PHP runtime must provide Microsoft's `sqlsrv` PHP extension and ODBC Driver 18. The Azure SQL database must contain a `shopusers` table with `name`, `email`, and `password` columns. Passwords are stored using PHP's `password_hash()`. The deployment workflow deploys the app but does not manage database credentials.

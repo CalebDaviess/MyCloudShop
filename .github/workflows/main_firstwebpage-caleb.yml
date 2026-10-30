@@ -60,19 +60,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_68C3211BF0DF40A6A2BD8B74753029AA }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2204B05486DD458DBEBCC61930083576 }}
 
-      - name: Configure Azure SQL connection settings
-        shell: bash
-        run: |
-          resource_group=$(az webapp show --name 'firstwebpage-Caleb' --query resourceGroup --output tsv)
-          az webapp config appsettings set \
-            --name 'firstwebpage-Caleb' \
-            --resource-group "$resource_group" \
-            --settings \
-              MYSHOP_DB_DRIVER=sqlsrv \
-              SQLSRV_SERVER=tcp:mycardiffmet-caleb.database.windows.net,1433 \
-              SQLSRV_DATABASE=myDatabase \
-              SQLSRV_UID=myadmin
-
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
