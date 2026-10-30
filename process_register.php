@@ -4,7 +4,7 @@ $serverName = "tcp:mycardiffmet-caleb.database.windows.net,1433";
 $connectionOptions = array( 
 "Database" => "myDatabase (mycardiffmet-caleb/myDatabase)", 
 "Uid" => "myadmin", 
-"PWD" => "Flapjack200311!", 
+"PWD" => getenv('DB_PASSWORD'), 
 "Encrypt" => 1, 
 "TrustServerCertificate" => 0 
 );
