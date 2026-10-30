@@ -17,11 +17,11 @@ if (!is_string($submittedToken) || !is_string($sessionToken) || $sessionToken ==
 $name = $_POST['name'] ?? null;
 $email = $_POST['email'] ?? null;
 $password = $_POST['password'] ?? '';
-
 if (!is_string($name) || !is_string($email) || !is_string($password)) {
     header('Location: register.php?error=missing_fields');
     exit();
 }
+
 $name = trim($name);
 $email = trim($email);
 if ($name === '' || $email === '' || $password === '') {
@@ -96,5 +96,6 @@ try {
     header('Location: register.php?error=unavailable');
     exit();
 }
+
 header('Location: success.php');
 exit();
