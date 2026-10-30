@@ -38,7 +38,8 @@ if (strlen($password) < 8) {
 }
 
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-$driver = getenv('MYSHOP_DB_DRIVER') ?: 'sqlite';
+$isAzureAppService = getenv('WEBSITE_SITE_NAME') !== false;
+$driver = getenv('MYSHOP_DB_DRIVER') ?: ($isAzureAppService ? 'sqlsrv' : 'sqlite');
 
 try {
     if ($driver === 'sqlite') {
