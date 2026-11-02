@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="960" viewBox="0 0 1000 960" fill="none">
+  <defs>
+    <linearGradient id="backdrop" x1="120" y1="80" x2="890" y2="880" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D9E7FF"/>
+      <stop offset=".48" stop-color="#C9C9F5"/>
+      <stop offset="1" stop-color="#F5DCEB"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(1 0 0 1 500 456)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF" stop-opacity=".96"/>
+      <stop offset="1" stop-color="#FFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="band" x1="351" y1="255" x2="662" y2="646" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#32394B"/>
+      <stop offset=".42" stop-color="#111725"/>
+      <stop offset=".76" stop-color="#4F5671"/>
+      <stop offset="1" stop-color="#151B29"/>
+    </linearGradient>
+    <linearGradient id="cup" x1="309" y1="454" x2="474" y2="744" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#737A98"/>
+      <stop offset=".24" stop-color="#32394F"/>
+      <stop offset=".8" stop-color="#111725"/>
+      <stop offset="1" stop-color="#707791"/>
+    </linearGradient>
+    <linearGradient id="cupRight" x1="609" y1="443" x2="738" y2="721" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A2A8C6"/>
+      <stop offset=".24" stop-color="#444C68"/>
+      <stop offset=".8" stop-color="#171D2D"/>
+      <stop offset="1" stop-color="#78809D"/>
+    </linearGradient>
+    <linearGradient id="cushion" x1="347" y1="487" x2="453" y2="717" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22293A"/>
+      <stop offset=".55" stop-color="#080D19"/>
+      <stop offset="1" stop-color="#343B51"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="338" y1="476" x2="413" y2="670" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#FFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="202" y="214" width="624" height="650" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+  </defs>
+  <rect x="38" y="38" width="924" height="884" rx="440" fill="url(#backdrop)"/>
+  <ellipse cx="505" cy="474" fill="url(#glow)" rx="405" ry="420"/>
+  <circle cx="208" cy="258" r="5" fill="#FFF" fill-opacity=".85"/>
+  <circle cx="789" cy="316" r="4" fill="#FFF" fill-opacity=".85"/>
+  <circle cx="764" cy="701" r="6" fill="#FFF" fill-opacity=".75"/>
+  <circle cx="268" cy="721" r="4" fill="#FFF" fill-opacity=".8"/>
+  <ellipse cx="516" cy="765" fill="#313353" fill-opacity=".24" rx="235" ry="41" filter="url(#shadow)"/>
+  <path d="M338 506V415c0-126 76-219 167-219s167 93 167 219v91" stroke="url(#band)" stroke-linecap="round" stroke-width="68"/>
+  <path d="M359 414c0-112 63-190 146-190 35 0 67 15 92 43" stroke="#FFF" stroke-linecap="round" stroke-opacity=".22" stroke-width="8"/>
+  <path d="M355 456h48v104h-48zM610 456h48v104h-48z" fill="#858CAA"/>
+  <rect x="294" y="457" width="180" height="282" rx="79" fill="url(#cup)"/>
+  <rect x="316" y="480" width="136" height="233" rx="67" fill="url(#cushion)"/>
+  <rect x="326" y="490" width="117" height="213" rx="58" fill="#090E19"/>
+  <path d="M314 492c27-24 57-30 85-24" stroke="url(#shine)" stroke-linecap="round" stroke-width="9"/>
+  <path d="M313 544v117" stroke="#A8AFCB" stroke-linecap="round" stroke-opacity=".35" stroke-width="4"/>
+  <rect x="581" y="445" width="173" height="271" rx="78" fill="url(#cupRight)"/>
+  <rect x="602" y="467" width="131" height="225" rx="64" fill="url(#cushion)"/>
+  <rect x="612" y="478" width="112" height="204" rx="55" fill="#090E19"/>
+  <path d="M600 482c22-19 45-27 71-25" stroke="#FFF" stroke-linecap="round" stroke-opacity=".34" stroke-width="8"/>
+  <path d="M737 505v124" stroke="#D6D9E8" stroke-linecap="round" stroke-opacity=".38" stroke-width="4"/>
+  <circle cx="706" cy="647" r="4" fill="#B7C7FF"/>
+  <path d="M500 258c-41 0-77 20-103 52" stroke="#AAB4E4" stroke-linecap="round" stroke-opacity=".35" stroke-width="5"/>
+  <path d="M261 792h478" stroke="#FFF" stroke-opacity=".4" stroke-width="2"/>
+</svg>
