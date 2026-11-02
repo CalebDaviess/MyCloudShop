@@ -6,7 +6,7 @@
     <title>MyShop - Welcome</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="home-page">
     <header class="header">
         <h1>MyShop</h1>
         <p>Your one-stop destination for amazing products</p>
