@@ -1,9 +1,9 @@
 <?php
-$serverName = getenv('DB_SERVER') ?: 'tcp:mycardiffmet-caleb.database.windows.net,1433';
+$serverName = getenv('DB_SERVER') ?: (getenv('SQLSRV_SERVER') ?: 'tcp:mycardiffmet-caleb.database.windows.net,1433');
 $connectionOptions = [
-    'Database' => getenv('DB_DATABASE') ?: 'myDatabase',
-    'Uid' => getenv('DB_USERNAME') ?: 'myadmin',
-    'PWD' => getenv('DB_PASSWORD') ?: '',
+    'Database' => getenv('DB_DATABASE') ?: (getenv('SQLSRV_DATABASE') ?: 'myDatabase'),
+    'Uid' => getenv('DB_USERNAME') ?: (getenv('SQLSRV_UID') ?: 'myadmin'),
+    'PWD' => getenv('DB_PASSWORD') ?: (getenv('SQLSRV_PWD') ?: ''),
     'Encrypt' => true,
     'TrustServerCertificate' => false,
 ];
@@ -42,7 +42,7 @@ if (!function_exists('sqlsrv_connect')) {
     exit();
 }
 if ($connectionOptions['PWD'] === '') {
-    error_log('MyShop registration unavailable: DB_PASSWORD is not set.');
+    error_log('MyShop registration unavailable: neither DB_PASSWORD nor SQLSRV_PWD is set.');
     header('Location: register.php?error=unavailable');
     exit();
 }
