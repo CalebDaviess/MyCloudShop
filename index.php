@@ -7,14 +7,14 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header class="site-header">
+    <header class="header">
         <h1>MyShop</h1>
         <p>Your one-stop destination for amazing products</p>
     </header>
-    <main class="container home-content">
+    <main class="container">
         <h2>Welcome to MyShop</h2>
-        <p>Join our community today to access exclusive deals and features!</p>
-        <a class="button" href="register.php">Create Your Account</a>
+        <p class="welcome-text">Join our community today to access exclusive deals and features!</p>
+        <a class="signup-link" href="register.php">Create Your Account</a>
     </main>
 </body>
 </html>

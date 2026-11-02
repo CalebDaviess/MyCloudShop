@@ -4,46 +4,109 @@
 
 body {
     margin: 0;
-    color: #263238;
-    background: #f4f4f4;
     font-family: Arial, sans-serif;
+    color: #263238;
 }
 
-.site-header {
-    padding: 20px;
+.header {
+    margin-bottom: 30px;
+    padding: 20px 0;
     color: #fff;
     background: #2c3e50;
     text-align: center;
 }
 
-.site-header h1 {
+.header h1 {
     margin: 0;
-    font-size: 2.5rem;
-}
-
-.site-header p {
-    margin: 8px 0 0;
+    font-size: 2.5em;
 }
 
 .container {
-    width: min(100% - 40px, 1200px);
+    max-width: 1200px;
     margin: 0 auto;
-}
-
-.home-content {
-    padding-top: 40px;
+    padding: 0 20px;
     text-align: center;
 }
 
-.home-content p {
-    margin-bottom: 24px;
+.welcome-text {
+    margin-bottom: 30px;
     color: #555;
-    font-size: 1.2rem;
+    font-size: 1.2em;
 }
 
-.button {
+.signup-link {
     display: inline-block;
-    padding: 12px 24px;
+    margin-top: 20px;
+    padding: 12px 30px;
+    border-radius: 4px;
+    color: #fff;
+    background: #007bff;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.signup-link:hover,
+.btn:hover {
+    background: #0056b3;
+}
+
+.register-page,
+.success-page {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    padding: 100px 20px 32px;
+    align-items: center;
+    justify-content: center;
+    background: #f4f4f4;
+}
+
+.register-page .header,
+.success-page .header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.register-form,
+.success-message {
+    width: 100%;
+    padding: 30px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.register-form {
+    max-width: 400px;
+}
+
+.register-form h2 {
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font: inherit;
+}
+
+.btn {
+    display: inline-block;
+    width: 100%;
+    padding: 10px 20px;
     border: 0;
     border-radius: 4px;
     color: #fff;
@@ -52,72 +115,16 @@ body {
     text-align: center;
     text-decoration: none;
     cursor: pointer;
-}
-
-.button:hover {
-    background: #0056b3;
-}
-
-.form-page {
-    min-height: 100vh;
-    padding: 100px 20px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.site-header-fixed {
-    position: absolute;
-    inset: 0 0 auto;
-}
-
-.form-panel {
-    width: 100%;
-    max-width: 400px;
-    padding: 30px;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 2px 12px rgb(0 0 0 / 10%);
-}
-
-.form-panel h2 {
-    margin-top: 0;
-    text-align: center;
-}
-
-.form-group {
-    margin-bottom: 16px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 700;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font: inherit;
-}
-
-.form-group input:focus {
-    outline: 2px solid #80bdff;
-    outline-offset: 1px;
-}
-
-.button-full {
-    width: 100%;
-    font-size: 1rem;
+    font-size: 16px;
 }
 
 .back-link {
-    display: block;
-    margin-top: 18px;
-    color: #0056b3;
+    margin: 10px 0 0;
     text-align: center;
+}
+
+.back-link a {
+    color: #0056b3;
 }
 
 .error {
@@ -129,32 +136,34 @@ body {
     text-align: center;
 }
 
-.success-panel {
+.success-message {
     max-width: 500px;
     text-align: center;
 }
 
 .success-icon {
     margin: 0 0 16px;
-    color: #218838;
-    font-size: 3rem;
+    color: #28a745;
+    font-size: 48px;
 }
 
-.button-success {
-    margin: 8px;
+.btn-success {
+    width: auto;
+    margin: 10px;
     background: #28a745;
 }
 
-.button-success:hover {
+.btn-success:hover {
     background: #218838;
 }
 
 @media (max-width: 480px) {
-    .form-panel {
+    .register-form,
+    .success-message {
         padding: 24px 20px;
     }
 
-    .success-panel .button {
+    .success-message .btn {
         width: 100%;
         margin: 6px 0;
     }
