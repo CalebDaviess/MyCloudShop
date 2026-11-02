@@ -1,8 +1,8 @@
 <?php
-$serverName = 'tcp:mycardiffmet-caleb.database.windows.net,1433';
+$serverName = getenv('DB_SERVER') ?: 'tcp:mycardiffmet-caleb.database.windows.net,1433';
 $connectionOptions = [
-    'Database' => 'myDatabase',
-    'Uid' => 'myadmin',
+    'Database' => getenv('DB_DATABASE') ?: 'myDatabase',
+    'Uid' => getenv('DB_USERNAME') ?: 'myadmin',
     'PWD' => getenv('DB_PASSWORD') ?: '',
     'Encrypt' => true,
     'TrustServerCertificate' => false,
@@ -46,22 +46,27 @@ if (strlen($password) < 8) {
 }
 
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-if (!function_exists('sqlsrv_connect') || $connectionOptions['PWD'] === '') {
-    error_log('MyShop registration requires the SQL Server driver and DB_PASSWORD setting.');
+if (!function_exists('sqlsrv_connect')) {
+    error_log('MyShop registration unavailable: the PHP sqlsrv extension is not loaded.');
+    header('Location: register.php?error=unavailable');
+    exit();
+}
+if ($connectionOptions['PWD'] === '') {
+    error_log('MyShop registration unavailable: DB_PASSWORD is not set.');
     header('Location: register.php?error=unavailable');
     exit();
 }
 
 $connection = sqlsrv_connect($serverName, $connectionOptions);
 if ($connection === false) {
-    error_log('MyShop registration could not connect to SQL Server.');
+    error_log('MyShop registration could not connect to SQL Server: ' . json_encode(sqlsrv_errors(SQLSRV_ERR_ALL)));
     header('Location: register.php?error=unavailable');
     exit();
 }
 
 $statement = sqlsrv_query($connection, 'INSERT INTO shopusers (name, email, password) VALUES (?, ?, ?)', [$name, $email, $hashedPassword]);
 if ($statement === false) {
-    error_log('MyShop registration could not insert a user into SQL Server.');
+    error_log('MyShop registration could not insert a user into SQL Server: ' . json_encode(sqlsrv_errors(SQLSRV_ERR_ALL)));
     sqlsrv_close($connection);
     header('Location: register.php?error=unavailable');
     exit();
