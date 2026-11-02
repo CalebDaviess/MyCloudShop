@@ -3,7 +3,7 @@ $serverName = getenv('DB_SERVER') ?: 'tcp:mycardiffmet-caleb.database.windows.ne
 $connectionOptions = [
     'Database' => getenv('DB_DATABASE') ?: 'myDatabase',
     'Uid' => getenv('DB_USERNAME') ?: 'myadmin',
-    'PWD' => getenv('DB_PASSWORD') ?: '',
+    'PWD' => getenv('DB_PASSWORD') ?: 'DB_PASSWORD',
     'Encrypt' => true,
     'TrustServerCertificate' => false,
 ];
