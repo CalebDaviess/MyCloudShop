@@ -7,6 +7,73 @@ function env_value(string $name, string $fallback = ''): string
     return $value === false ? $fallback : trim($value);
 }
 
+function notify_order_function(array $payload): ?string
+{
+    $url = env_value('CLOUDCART_ORDER_FUNCTION_URL');
+    if ($url === '') {
+        return null;
+    }
+
+    $key = env_value('CLOUDCART_ORDER_FUNCTION_KEY');
+    $urlParts = parse_url($url);
+    $isLocalHttp = is_array($urlParts)
+        && ($urlParts['scheme'] ?? '') === 'http'
+        && in_array(strtolower((string) ($urlParts['host'] ?? '')), ['localhost', '127.0.0.1'], true);
+    if (
+        $key === ''
+        || !filter_var($url, FILTER_VALIDATE_URL)
+        || !is_array($urlParts)
+        || !in_array($urlParts['scheme'] ?? '', ['https', 'http'], true)
+        || (($urlParts['scheme'] ?? '') !== 'https' && !$isLocalHttp)
+        || isset($urlParts['user'])
+        || isset($urlParts['pass'])
+        || isset($urlParts['query'])
+        || isset($urlParts['fragment'])
+    ) {
+        error_log('CloudCart order Function configuration is invalid or incomplete.');
+        return 'Your order is saved, but its order notification could not be sent.';
+    }
+    if (!function_exists('curl_init')) {
+        error_log('CloudCart order Function notification requires the PHP cURL extension.');
+        return 'Your order is saved, but its order notification could not be sent.';
+    }
+
+    $body = json_encode($payload, JSON_THROW_ON_ERROR);
+    $request = curl_init($url);
+    if ($request === false) {
+        error_log('CloudCart could not initialize the order Function request.');
+        return 'Your order is saved, but its order notification could not be sent.';
+    }
+    $configured = curl_setopt_array($request, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $body,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'x-functions-key: ' . $key,
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 2,
+        CURLOPT_TIMEOUT => 5,
+    ]);
+    if (!$configured) {
+        curl_close($request);
+        error_log('CloudCart could not configure the order Function request.');
+        return 'Your order is saved, but its order notification could not be sent.';
+    }
+
+    $response = curl_exec($request);
+    $status = (int) curl_getinfo($request, CURLINFO_RESPONSE_CODE);
+    $requestError = $response === false ? curl_error($request) : '';
+    curl_close($request);
+    if ($response === false || $status < 200 || $status >= 300) {
+        error_log('CloudCart order Function notification failed: ' . ($requestError !== '' ? $requestError : 'HTTP ' . $status));
+        return 'Your order is saved, but its order notification could not be sent.';
+    }
+
+    return null;
+}
+
 $isHttps = (
     (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'

@@ -107,6 +107,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $database->commit();
         unset($_SESSION['cart']);
+        $notificationError = notify_order_function([
+            'event_id' => 'cloudcart-order-' . $orderId,
+            'order_id' => $orderId,
+            'status' => 'Order received',
+            'total' => $total,
+            'currency' => 'GBP',
+            'items' => array_map(static fn(array $item): array => [
+                'name' => (string) $item['product']['name'],
+                'quantity' => (int) $item['quantity'],
+                'unit_price' => (float) $item['product']['price'],
+            ], $lockedItems),
+        ]);
+        if ($notificationError !== null) {
+            set_flash('warning', $notificationError);
+        }
         redirect('success.php?order=' . $orderId);
     }
 

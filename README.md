@@ -44,6 +44,38 @@ Register a single-tenant Microsoft Entra application and add the exact callback 
 
 The sign-in flow uses state, nonce, PKCE, TLS-verified token requests, and Microsoft signing-key verification. Microsoft accounts are not automatically linked to a pre-existing password account with the same email; sign in first and connect the provider from **Your security**.
 
+## Azure Functions order notifications
+
+The optional Python Azure Function in [`azure_function/`](./azure_function/) receives a JSON notification after CloudCart has committed a demo order. It validates the order ID, total, currency, and item details, then acknowledges the event. The notification deliberately excludes customer names, email addresses, delivery addresses, and payment details. The sample does not send emails or write to another database; add those downstream actions to the function if needed.
+
+### Deploy the Function
+
+Create a separate Linux Function App in Azure with the Python 3.12 runtime and Functions runtime version 4. From the `azure_function` directory, install the dependency and publish with Azure Functions Core Tools:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+func azure functionapp publish <FUNCTION_APP_NAME>
+```
+
+The function endpoint is `https://<FUNCTION_APP_NAME>.azurewebsites.net/api/neworder`. In the Azure portal, open the function's **Function Keys** and copy a function-specific key. Configure these App Service settings on the CloudCart PHP app:
+
+| Setting | Purpose |
+| --- | --- |
+| `CLOUDCART_ORDER_FUNCTION_URL` | The HTTPS URL ending in `/api/neworder`. |
+| `CLOUDCART_ORDER_FUNCTION_KEY` | The function-specific key, stored as a secret App Service setting. |
+
+CloudCart sends the key in the `x-functions-key` header. Keep both values out of source control and logs. The PHP cURL extension is required for this optional integration. If the function URL is not configured, checkout behaves as before. If notification delivery fails after an order is committed, the order remains recorded, the customer sees a warning, and the failure is written to the PHP error log; checkout is not rolled back. This workshop example is best-effort and does not provide durable retries. Use an outbox/queue for production delivery guarantees, and make downstream consumers idempotent using the stable `event_id`.
+
+To run the Function locally, install Azure Functions Core Tools and start the host from `azure_function`:
+
+```powershell
+func start
+```
+
+Set `CLOUDCART_ORDER_FUNCTION_URL` to the local `/api/neworder` endpoint and `CLOUDCART_ORDER_FUNCTION_KEY` to a local function key in the same environment as the PHP server. Then place a demo order in CloudCart and check the Functions host output for the accepted order event. Do not use real customer data for the assessment demo.
+
 ## Security and payments
 
 - Passwords are stored with PHP's Argon2id algorithm when available, otherwise PHP's current default password algorithm.
