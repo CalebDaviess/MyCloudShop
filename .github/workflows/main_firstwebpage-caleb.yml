@@ -64,6 +64,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_68C3211BF0DF40A6A2BD8B74753029AA }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2204B05486DD458DBEBCC61930083576 }}
 
+      - name: Configure PHP runtime
+        run: az webapp config set --name 'firstwebpage-Caleb' --resource-group 'myshop-workshop-rg' --linux-fx-version 'PHP|8.2' --output none
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
