@@ -74,3 +74,11 @@ jobs:
           app-name: 'firstwebpage-Caleb'
           slot-name: 'Production'
           package: .
+
+      - name: Verify deployed homepage file
+        shell: bash
+        run: |
+          publishing_user=$(az webapp deployment list-publishing-credentials --name 'firstwebpage-Caleb' --resource-group 'myshop-workshop-rg' --query publishingUserName --output tsv)
+          publishing_password=$(az webapp deployment list-publishing-credentials --name 'firstwebpage-Caleb' --resource-group 'myshop-workshop-rg' --query publishingPassword --output tsv)
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' --user "$publishing_user:$publishing_password" 'https://firstwebpage-caleb-frc0gzb4abf8ajac.scm.switzerlandnorth-01.azurewebsites.net/api/vfs/site/wwwroot/index.php')
+          echo "Deployed wwwroot/index.php status: $status"
