@@ -1,16 +1,23 @@
 name: Deploy CloudCart Azure Function
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'azure_function/**'
+      - '.github/workflows/deploy-azure-function.yml'
   workflow_dispatch:
     inputs:
       function_app_name:
         description: Existing Linux Function App name (Python 3.12, Functions v4)
-        required: true
+        required: false
+        default: Calebpython-function-cd
         type: string
       resource_group:
         description: Azure resource group containing the Function App
-        required: true
-        default: myshop-workshop-rg
+        required: false
+        default: python-functions-rg
         type: string
 
 jobs:
@@ -32,8 +39,8 @@ jobs:
 
       - name: Configure Function App runtime and remote build
         env:
-          FUNCTION_APP_NAME: ${{ inputs.function_app_name }}
-          RESOURCE_GROUP: ${{ inputs.resource_group }}
+          FUNCTION_APP_NAME: ${{ inputs.function_app_name || 'Calebpython-function-cd' }}
+          RESOURCE_GROUP: ${{ inputs.resource_group || 'python-functions-rg' }}
         run: |
           az functionapp config set \
             --name "$FUNCTION_APP_NAME" \
@@ -52,8 +59,8 @@ jobs:
 
       - name: Package and deploy Function
         env:
-          FUNCTION_APP_NAME: ${{ inputs.function_app_name }}
-          RESOURCE_GROUP: ${{ inputs.resource_group }}
+          FUNCTION_APP_NAME: ${{ inputs.function_app_name || 'Calebpython-function-cd' }}
+          RESOURCE_GROUP: ${{ inputs.resource_group || 'python-functions-rg' }}
         run: |
           cd azure_function
           zip -r "$GITHUB_WORKSPACE/function-package.zip" . \
@@ -67,8 +74,8 @@ jobs:
 
       - name: Connect Function to CloudCart
         env:
-          FUNCTION_APP_NAME: ${{ inputs.function_app_name }}
-          RESOURCE_GROUP: ${{ inputs.resource_group }}
+          FUNCTION_APP_NAME: ${{ inputs.function_app_name || 'Calebpython-function-cd' }}
+          RESOURCE_GROUP: ${{ inputs.resource_group || 'python-functions-rg' }}
         shell: bash
         run: |
           host=$(az functionapp show \
