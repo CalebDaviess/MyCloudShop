@@ -112,7 +112,7 @@ site_shell_start('Your account', 'account-page');
                 <span class="empty-symbol" aria-hidden="true">↗</span>
                 <h3>Your next favourite is out there.</h3>
                 <p>Once you find it, you’ll be able to follow its journey from here.</p>
-                <a class="text-link" href="index.php#shop">Have a look around <span aria-hidden="true">↗</span></a>
+                <a class="text-link" href="home.php#shop">Have a look around <span aria-hidden="true">↗</span></a>
             </div>
         <?php else: ?>
             <p class="tracking-live-status" data-tracking-live role="status">Order updates refresh automatically.</p>
@@ -163,7 +163,7 @@ site_shell_start('Your account', 'account-page');
             <span class="result-count"><?= count($favourites) ?> saved</span>
         </div>
         <?php if ($favourites === []): ?>
-            <div class="favourites-empty"><p>A favourite takes just one little heart.</p><a class="text-link" href="index.php#shop">Find something to love <span aria-hidden="true">↗</span></a></div>
+            <div class="favourites-empty"><p>A favourite takes just one little heart.</p><a class="text-link" href="home.php#shop">Find something to love <span aria-hidden="true">↗</span></a></div>
         <?php else: ?>
             <div class="favourites-grid">
                 <?php foreach ($favourites as $favourite): ?>

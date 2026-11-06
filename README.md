@@ -16,7 +16,7 @@ For local SQL Server development, set `DB_DRIVER=sqlsrv` and configure `DB_SERVE
 
 ## Azure App Service and Azure SQL
 
-The existing GitHub Actions workflow deploys this application to Azure App Service. Configure these values as App Service settings (and keep passwords in Azure settings or GitHub Actions secrets, never in source control):
+The existing GitHub Actions workflow deploys this application to Azure App Service. It configures the PHP 8.2 runtime. The static `index.html` entry point redirects to `home.php`, which loads the CloudCart home page; this avoids the current App Service Nginx routing issue with the `index.php` path. Configure these values as App Service settings (and keep passwords in Azure settings or GitHub Actions secrets, never in source control):
 
 | Setting | Purpose |
 | --- | --- |
@@ -50,16 +50,18 @@ The optional Python Azure Function in [`azure_function/`](./azure_function/) rec
 
 ### Deploy the Function
 
-Create a separate Linux Function App in Azure with the Python 3.12 runtime and Functions runtime version 4. From the `azure_function` directory, install the dependency and publish with Azure Functions Core Tools:
+Create a separate Linux Function App in Azure with the Python 3.12 runtime, Functions runtime version 4, and a storage account configured as `AzureWebJobsStorage`. The storage account is required by the Functions host. The Function App must be in a resource group accessible to the GitHub Actions Azure identity already used by this repository.
+
+The repository includes a manual deployment workflow. In GitHub, open **Actions → Deploy CloudCart Azure Function → Run workflow**, enter the existing Function App name and resource group, and run it. The workflow configures the Python 3.12/Functions v4 runtime and remote build, deploys `azure_function/`, retrieves the function key, sets `CLOUDCART_ORDER_FUNCTION_URL` and `CLOUDCART_ORDER_FUNCTION_KEY` on the CloudCart App Service, and performs a synthetic HTTP smoke test. It does not create Azure resources. If you prefer Azure Functions Core Tools, from the `azure_function` directory:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-func azure functionapp publish <FUNCTION_APP_NAME>
+func azure functionapp publish <FUNCTION_APP_NAME> --build remote
 ```
 
-The function endpoint is `https://<FUNCTION_APP_NAME>.azurewebsites.net/api/neworder`. In the Azure portal, open the function's **Function Keys** and copy a function-specific key. Configure these App Service settings on the CloudCart PHP app:
+The function endpoint is `https://<FUNCTION_APP_NAME>.azurewebsites.net/api/neworder`. If you deploy manually, open the function's **Function Keys** in Azure Portal and copy a function-specific key, then configure these App Service settings on the CloudCart PHP app:
 
 | Setting | Purpose |
 | --- | --- |

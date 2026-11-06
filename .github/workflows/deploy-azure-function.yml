@@ -1,0 +1,120 @@
+name: Deploy CloudCart Azure Function
+
+on:
+  workflow_dispatch:
+    inputs:
+      function_app_name:
+        description: Existing Linux Function App name (Python 3.12, Functions v4)
+        required: true
+        type: string
+      resource_group:
+        description: Azure resource group containing the Function App
+        required: true
+        default: myshop-workshop-rg
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0A87DAD93FD543B8A44603950A8F535A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_68C3211BF0DF40A6A2BD8B74753029AA }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2204B05486DD458DBEBCC61930083576 }}
+
+      - name: Configure Function App runtime and remote build
+        env:
+          FUNCTION_APP_NAME: ${{ inputs.function_app_name }}
+          RESOURCE_GROUP: ${{ inputs.resource_group }}
+        run: |
+          az functionapp config set \
+            --name "$FUNCTION_APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --linux-fx-version 'Python|3.12' \
+            --output none
+          az functionapp config appsettings set \
+            --name "$FUNCTION_APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --settings \
+              FUNCTIONS_EXTENSION_VERSION='~4' \
+              FUNCTIONS_WORKER_RUNTIME=python \
+              SCM_DO_BUILD_DURING_DEPLOYMENT=true \
+              ENABLE_ORYX_BUILD=true \
+            --output none
+
+      - name: Package and deploy Function
+        env:
+          FUNCTION_APP_NAME: ${{ inputs.function_app_name }}
+          RESOURCE_GROUP: ${{ inputs.resource_group }}
+        run: |
+          cd azure_function
+          zip -r "$GITHUB_WORKSPACE/function-package.zip" . \
+            -x '.venv/*' '__pycache__/*' '*.pyc' 'local.settings.json'
+          az functionapp deployment source config-zip \
+            --name "$FUNCTION_APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --src "$GITHUB_WORKSPACE/function-package.zip" \
+            --build-remote true \
+            --output none
+
+      - name: Connect Function to CloudCart
+        env:
+          FUNCTION_APP_NAME: ${{ inputs.function_app_name }}
+          RESOURCE_GROUP: ${{ inputs.resource_group }}
+        shell: bash
+        run: |
+          host=$(az functionapp show \
+            --name "$FUNCTION_APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query defaultHostName \
+            --output tsv)
+          if [[ -z "$host" ]]; then
+            echo "Could not read the Function App hostname." >&2
+            exit 1
+          fi
+
+          function_key=''
+          for attempt in {1..12}; do
+            function_key=$(az functionapp function keys list \
+              --name "$FUNCTION_APP_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --function-name CloudCartNewOrder \
+              --query default \
+              --output tsv 2>/dev/null || true)
+            if [[ -n "$function_key" && "$function_key" != 'None' ]]; then
+              break
+            fi
+            sleep 10
+          done
+          if [[ -z "$function_key" || "$function_key" == 'None' ]]; then
+            echo "The CloudCartNewOrder function key was not available after deployment." >&2
+            exit 1
+          fi
+
+          az webapp config appsettings set \
+            --name 'firstwebpage-Caleb' \
+            --resource-group 'myshop-workshop-rg' \
+            --settings \
+              "CLOUDCART_ORDER_FUNCTION_URL=https://$host/api/neworder" \
+              "CLOUDCART_ORDER_FUNCTION_KEY=$function_key" \
+            --output none
+
+          response=$(curl --silent --show-error --fail \
+            --max-time 15 \
+            --header "x-functions-key: $function_key" \
+            --header 'Content-Type: application/json' \
+            --data '{"event_id":"cloudcart-order-1","order_id":1,"status":"Deployment test","total":0,"currency":"GBP","items":[{"name":"Deployment test","quantity":1,"unit_price":0}]}' \
+            "https://$host/api/neworder")
+          if [[ "$response" != *'"accepted": true'* && "$response" != *'"accepted":true'* ]]; then
+            echo "Function smoke test returned an unexpected response." >&2
+            exit 1
+          fi
+          echo 'Azure Function deployed, key configured in CloudCart, and HTTP smoke test passed.'

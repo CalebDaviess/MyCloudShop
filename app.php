@@ -686,11 +686,11 @@ function site_shell_start(string $title, string $pageClass = ''): void
 <body class="store-page <?= e($pageClass) ?>">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="store-header">
-        <a class="store-brand" href="index.php" aria-label="CloudCart home">cloud<span>cart</span><i aria-hidden="true">.</i></a>
+        <a class="store-brand" href="home.php" aria-label="CloudCart home">cloud<span>cart</span><i aria-hidden="true">.</i></a>
         <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">Menu</button>
         <nav class="store-nav" id="primary-navigation" aria-label="Main navigation">
-            <a href="index.php#shop">Shop</a>
-            <a href="index.php#story">Our approach</a>
+            <a href="home.php#shop">Shop</a>
+            <a href="home.php#story">Our approach</a>
             <?php if ($user !== null): ?>
                 <a href="account.php">Your orders</a>
                 <?php if ($user['is_admin']): ?><a href="admin.php">Manage store</a><?php endif; ?>
@@ -727,7 +727,7 @@ function site_shell_end(): void
     ?>
     </main>
     <footer class="store-footer">
-        <a class="store-brand footer-logo" href="index.php">cloud<span>cart</span><i aria-hidden="true">.</i></a>
+        <a class="store-brand footer-logo" href="home.php">cloud<span>cart</span><i aria-hidden="true">.</i></a>
         <p>Thoughtful tech, made for everyday.</p>
         <span>Demo checkout · No real payment is taken</span>
     </footer>

@@ -11,7 +11,7 @@ if ($product === null || !(bool) $product['is_active']) {
         <span class="empty-symbol" aria-hidden="true">✳</span>
         <h1>That find has moved on.</h1>
         <p>It may be taking a little break. There are plenty of other lovely things to discover.</p>
-        <a class="button button-dark" href="index.php#shop">Browse the collection <span aria-hidden="true">↗</span></a>
+        <a class="button button-dark" href="home.php#shop">Browse the collection <span aria-hidden="true">↗</span></a>
     </section>
     <?php
     site_shell_end();
@@ -52,8 +52,8 @@ $recommendations = array_values(array_filter(
 site_shell_start((string) $product['name'], 'product-page');
 ?>
     <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="index.php">Home</a><span aria-hidden="true">/</span>
-        <a href="index.php#shop">Shop</a><span aria-hidden="true">/</span>
+        <a href="home.php">Home</a><span aria-hidden="true">/</span>
+        <a href="home.php#shop">Shop</a><span aria-hidden="true">/</span>
         <span aria-current="page"><?= e($product['name']) ?></span>
     </nav>
     <section class="product-detail" aria-labelledby="product-title">
@@ -94,7 +94,7 @@ site_shell_start((string) $product['name'], 'product-page');
     <section class="recommendations">
         <div class="section-heading">
             <div><p class="section-eyebrow">MORE TO FALL FOR</p><h2>In the same good company.</h2></div>
-            <a class="text-link" href="index.php#shop">See everything <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="home.php#shop">See everything <span aria-hidden="true">↗</span></a>
         </div>
         <div class="recommendation-row">
             <?php foreach (array_slice($recommendations, 0, 3) as $related): ?>

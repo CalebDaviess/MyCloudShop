@@ -49,7 +49,7 @@ site_shell_start('A brighter kind of everyday', 'home-page');
             <span class="result-count"><?= count($catalogue) ?> considered finds</span>
         </div>
 
-        <form class="catalogue-controls" method="get" action="index.php" role="search">
+        <form class="catalogue-controls" method="get" action="home.php" role="search">
             <label class="search-field">
                 <span class="visually-hidden">Search products</span>
                 <span class="search-icon" aria-hidden="true">⌕</span>
@@ -70,13 +70,13 @@ site_shell_start('A brighter kind of everyday', 'home-page');
 
         <div class="category-list" aria-label="Filter by category">
             <?php
-            $allHref = 'index.php' . ($search !== '' ? '?search=' . rawurlencode($search) : '');
+            $allHref = 'home.php' . ($search !== '' ? '?search=' . rawurlencode($search) : '');
             ?>
             <a class="category-chip <?= $category === '' ? 'is-selected' : '' ?>" href="<?= e($allHref) ?>" <?= $category === '' ? 'aria-current="page"' : '' ?>>Everything</a>
             <?php foreach ($categories as $itemCategory): ?>
                 <?php
                 $query = array_filter(['category' => $itemCategory, 'search' => $search, 'sort' => $sort]);
-                $href = 'index.php?' . http_build_query($query);
+                $href = 'home.php?' . http_build_query($query);
                 ?>
                 <a class="category-chip <?= $category === $itemCategory ? 'is-selected' : '' ?>" href="<?= e($href) ?>" <?= $category === $itemCategory ? 'aria-current="page"' : '' ?>><?= e($itemCategory) ?></a>
             <?php endforeach; ?>
@@ -87,7 +87,7 @@ site_shell_start('A brighter kind of everyday', 'home-page');
                 <span class="empty-symbol" aria-hidden="true">⌕</span>
                 <h3>No finds this time.</h3>
                 <p>Try another search or take a look at everything we’ve picked.</p>
-                <a class="text-link" href="index.php#shop">See all of the good stuff <span aria-hidden="true">↗</span></a>
+                <a class="text-link" href="home.php#shop">See all of the good stuff <span aria-hidden="true">↗</span></a>
             </div>
         <?php else: ?>
             <div class="product-grid">

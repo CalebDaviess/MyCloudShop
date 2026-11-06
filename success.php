@@ -30,7 +30,7 @@ site_shell_start('Your order is on its way', 'success-page');
         </div>
         <div class="confirmation-actions">
             <a class="button button-dark" href="account.php">Follow your order <span aria-hidden="true">↗</span></a>
-            <a class="text-link" href="index.php#shop">Keep exploring <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="home.php#shop">Keep exploring <span aria-hidden="true">↗</span></a>
         </div>
     </section>
 <?php site_shell_end(); ?>

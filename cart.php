@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $product = product_by_id((int) $productId);
         if ($product === null || !(bool) $product['is_active'] || (int) $product['stock'] < 1) {
             set_flash('error', 'That item isn’t available right now.');
-            redirect('index.php#shop');
+            redirect('home.php#shop');
         }
         $cart = $_SESSION['cart'] ?? [];
         $cart[(string) $productId] = min((int) ($cart[(string) $productId] ?? 0) + 1, (int) $product['stock']);
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $items = cart_items();
         if ($items === []) {
             set_flash('error', 'Your bag is empty. Find something lovely first.');
-            redirect('index.php#shop');
+            redirect('home.php#shop');
         }
 
         $database = db();
@@ -146,7 +146,7 @@ site_shell_start('Your bag', 'cart-page');
             <span class="empty-symbol" aria-hidden="true">♡</span>
             <h2>Nothing in your bag. Yet.</h2>
             <p>Have a look around. Your next favourite might be closer than you think.</p>
-            <a class="button button-dark" href="index.php#shop">Explore the collection <span aria-hidden="true">↗</span></a>
+            <a class="button button-dark" href="home.php#shop">Explore the collection <span aria-hidden="true">↗</span></a>
         </section>
     <?php else: ?>
         <div class="checkout-layout">
@@ -182,7 +182,7 @@ site_shell_start('Your bag', 'cart-page');
                         <p class="bag-line-total"><?= money((float) $item['subtotal']) ?></p>
                     </article>
                 <?php endforeach; ?>
-                <a class="continue-link" href="index.php#shop"><span aria-hidden="true">←</span> Keep looking</a>
+                <a class="continue-link" href="home.php#shop"><span aria-hidden="true">←</span> Keep looking</a>
             </section>
 
             <aside class="checkout-panel" id="checkout" aria-labelledby="checkout-title">
