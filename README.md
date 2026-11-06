@@ -50,9 +50,16 @@ The optional Python Azure Function in [`azure_function/`](./azure_function/) rec
 
 ### Deploy the Function
 
-Create a separate Linux Function App in Azure with the Python 3.12 runtime, Functions runtime version 4, and a storage account configured as `AzureWebJobsStorage`. The storage account is required by the Functions host. The Function App must be in a resource group accessible to the GitHub Actions Azure identity already used by this repository.
+Create a separate Linux Function App in Azure with the Python 3.12 runtime, Functions runtime version 4, and a storage account configured as `AzureWebJobsStorage`. The storage account is required by the Functions host. This repository's GitHub Actions identity does not have permission to deploy to the Function App's resource group, so the Function deployment uses its publish profile instead.
 
-The repository includes a manual deployment workflow. In GitHub, open **Actions → Deploy CloudCart Azure Function → Run workflow**, enter the existing Function App name and resource group, and run it. The workflow configures the Python 3.12/Functions v4 runtime and remote build, deploys `azure_function/`, retrieves the function key, sets `CLOUDCART_ORDER_FUNCTION_URL` and `CLOUDCART_ORDER_FUNCTION_KEY` on the CloudCart App Service, and performs a synthetic HTTP smoke test. It does not create Azure resources. If you prefer Azure Functions Core Tools, from the `azure_function` directory:
+Before running the workflow, add these repository Actions secrets in **Settings → Secrets and variables → Actions**:
+
+| Secret | Where to get it |
+| --- | --- |
+| `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` | Download the Function App publish profile from its Azure Portal overview page. |
+| `CLOUDCART_ORDER_FUNCTION_KEY` | Copy the `CloudCartNewOrder` function key from the Function App's **Functions → CloudCartNewOrder → Function Keys** page. |
+
+Never commit either value. In GitHub, open **Actions → Deploy CloudCart Azure Function → Run workflow**, keep or enter the Function App name, and run it. The workflow deploys `azure_function/` with remote build, sets `CLOUDCART_ORDER_FUNCTION_URL` and `CLOUDCART_ORDER_FUNCTION_KEY` on the CloudCart App Service, and performs a synthetic HTTP smoke test. The Function App's runtime and `AzureWebJobsStorage` must already be configured as described above; this workflow does not create or configure Azure resources. If you prefer Azure Functions Core Tools, from the `azure_function` directory:
 
 ```powershell
 python -m venv .venv
