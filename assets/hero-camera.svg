@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="960" viewBox="0 0 1000 960" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="65" x2="905" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E1ECFF"/>
+      <stop offset=".48" stop-color="#D6D1F2"/>
+      <stop offset="1" stop-color="#F4DDE8"/>
+    </linearGradient>
+    <linearGradient id="body" x1="269" y1="366" x2="733" y2="666" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF"/>
+      <stop offset=".6" stop-color="#DCE0EA"/>
+      <stop offset="1" stop-color="#ADB4CA"/>
+    </linearGradient>
+    <linearGradient id="lens" x1="403" y1="392" x2="601" y2="602" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6F7F9C"/>
+      <stop offset=".46" stop-color="#222B45"/>
+      <stop offset="1" stop-color="#8094B9"/>
+    </linearGradient>
+    <filter id="shadow" x="189" y="280" width="650" height="550" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+  </defs>
+  <rect x="38" y="38" width="924" height="884" rx="440" fill="url(#bg)"/>
+  <ellipse cx="505" cy="735" rx="254" ry="41" fill="#393550" fill-opacity=".2" filter="url(#shadow)"/>
+  <rect x="239" y="343" width="522" height="340" rx="64" fill="url(#body)"/>
+  <rect x="294" y="292" width="158" height="79" rx="26" fill="#C5C9DA"/>
+  <rect x="326" y="310" width="89" height="36" rx="12" fill="#EFF0F6"/>
+  <circle cx="518" cy="507" r="145" fill="#7B849C"/>
+  <circle cx="518" cy="507" r="124" fill="url(#lens)"/>
+  <circle cx="518" cy="507" r="84" stroke="#CCD5E7" stroke-opacity=".57" stroke-width="5"/>
+  <circle cx="518" cy="507" r="47" fill="#141B2D"/>
+  <circle cx="480" cy="461" r="17" fill="#FFF" fill-opacity=".48"/>
+  <circle cx="686" cy="404" r="14" fill="#D8A08E"/>
+  <rect x="271" y="596" width="458" height="56" rx="12" fill="#FFF" fill-opacity=".6"/>
+  <path d="M343 622h141" stroke="#A8AEC1" stroke-linecap="round" stroke-width="5"/>
+  <circle cx="687" cy="624" r="9" fill="#7772D8"/>
+</svg>

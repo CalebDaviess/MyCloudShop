@@ -1,73 +1,45 @@
 <?php
-$serverName = getenv('DB_SERVER') ?: (getenv('SQLSRV_SERVER') ?: 'tcp:mycardiffmet-caleb.database.windows.net,1433');
-$connectionOptions = [
-    'Database' => getenv('DB_DATABASE') ?: (getenv('SQLSRV_DATABASE') ?: 'myDatabase'),
-    'Uid' => getenv('DB_USERNAME') ?: (getenv('SQLSRV_UID') ?: 'myadmin'),
-    'PWD' => getenv('DB_PASSWORD') ?: (getenv('SQLSRV_PWD') ?: ''),
-    'Encrypt' => true,
-    'TrustServerCertificate' => false,
-];
+require_once __DIR__ . '/app.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: register.php');
-    exit();
+    redirect('register.php');
 }
+verify_csrf();
 
 $name = $_POST['name'] ?? '';
 $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 if (!is_string($name) || !is_string($email) || !is_string($password)) {
-    header('Location: register.php?error=missing_fields');
-    exit();
+    set_flash('error', 'Please check the details you entered and try again.');
+    redirect('register.php');
 }
 
 $name = trim($name);
-$email = trim($email);
-if ($name === '' || $email === '' || $password === '') {
-    header('Location: register.php?error=missing_fields');
-    exit();
+$email = strtolower(trim($email));
+if ($name === '' || strlen($name) > 120 || filter_var($email, FILTER_VALIDATE_EMAIL) === false || strlen($email) > 254) {
+    set_flash('error', 'Add your name and a valid email address to continue.');
+    redirect('register.php');
 }
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header('Location: register.php?error=invalid_email');
-    exit();
+if (strlen($password) < 12 || strlen($password) > 1024) {
+    set_flash('error', 'Choose a password with at least 12 characters.');
+    redirect('register.php');
 }
-if (strlen($password) < 8) {
-    header('Location: register.php?error=short_password');
-    exit();
-}
-
-if (!function_exists('sqlsrv_connect')) {
-    error_log('MyShop registration unavailable: the PHP sqlsrv extension is not loaded.');
-    header('Location: register.php?error=unavailable');
-    exit();
-}
-if ($connectionOptions['PWD'] === '') {
-    error_log('MyShop registration unavailable: neither DB_PASSWORD nor SQLSRV_PWD is set.');
-    header('Location: register.php?error=unavailable');
-    exit();
+if (db()->one('SELECT id FROM users WHERE email = ?', [$email]) !== null) {
+    set_flash('error', 'There is already an account with that email. Try signing in instead.');
+    redirect('login.php');
 }
 
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-$connection = sqlsrv_connect($serverName, $connectionOptions);
-if ($connection === false) {
-    error_log('MyShop registration could not connect to SQL Server: ' . json_encode(sqlsrv_errors(SQLSRV_ERR_ALL)));
-    header('Location: register.php?error=unavailable');
-    exit();
-}
+$adminEmail = strtolower(env_value('ADMIN_EMAIL'));
+$userId = db()->insert('users', [
+    'name' => $name,
+    'email' => $email,
+    'password_hash' => password_hash_secure($password),
+    'is_admin' => $adminEmail !== '' && $email === $adminEmail ? 1 : 0,
+]);
 
-$statement = sqlsrv_query(
-    $connection,
-    'INSERT INTO shopusers (name, email, password) VALUES (?, ?, ?)',
-    [$name, $email, $hashedPassword]
-);
-if ($statement === false) {
-    error_log('MyShop registration could not insert a user into SQL Server: ' . json_encode(sqlsrv_errors(SQLSRV_ERR_ALL)));
-    sqlsrv_close($connection);
-    header('Location: register.php?error=unavailable');
-    exit();
-}
-
-sqlsrv_free_stmt($statement);
-sqlsrv_close($connection);
-header('Location: success.php');
-exit();
+session_regenerate_id(true);
+$_SESSION['user_id'] = $userId;
+$_SESSION['mfa_verified'] = true;
+unset($_SESSION['csrf_token']);
+set_flash('success', 'Your account is ready. Welcome to CloudCart.');
+redirect('account.php');

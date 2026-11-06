@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="960" viewBox="0 0 1000 960" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="100" x2="880" y2="880" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D9E7FF"/>
+      <stop offset=".52" stop-color="#CDCFF4"/>
+      <stop offset="1" stop-color="#F4DFEC"/>
+    </linearGradient>
+    <linearGradient id="body" x1="312" y1="320" x2="690" y2="730" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDFDFF"/>
+      <stop offset=".46" stop-color="#C9CCDD"/>
+      <stop offset="1" stop-color="#737C9D"/>
+    </linearGradient>
+    <radialGradient id="face" cx="0" cy="0" r="1" gradientTransform="matrix(285 0 0 285 500 479)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4F5FF"/>
+      <stop offset=".76" stop-color="#D9DCEC"/>
+      <stop offset="1" stop-color="#939BB8"/>
+    </radialGradient>
+    <filter id="shadow" x="170" y="214" width="660" height="650" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+  </defs>
+  <rect x="38" y="38" width="924" height="884" rx="440" fill="url(#bg)"/>
+  <ellipse cx="505" cy="754" rx="250" ry="38" fill="#343858" fill-opacity=".2" filter="url(#shadow)"/>
+  <circle cx="500" cy="490" r="244" fill="url(#body)"/>
+  <circle cx="500" cy="480" r="205" fill="url(#face)"/>
+  <circle cx="500" cy="480" r="179" stroke="#FFF" stroke-opacity=".72" stroke-width="2"/>
+  <circle cx="500" cy="480" r="142" stroke="#747D9C" stroke-opacity=".17" stroke-width="2"/>
+  <circle cx="500" cy="480" r="98" stroke="#747D9C" stroke-opacity=".2" stroke-width="2"/>
+  <circle cx="500" cy="480" r="14" fill="#7772D8" fill-opacity=".86"/>
+  <path d="M500 390v78" stroke="#7772D8" stroke-linecap="round" stroke-width="8"/>
+  <circle cx="500" cy="480" r="205" stroke="#FFF" stroke-opacity=".56" stroke-width="6"/>
+  <circle cx="500" cy="480" r="267" stroke="#FFF" stroke-opacity=".46" stroke-width="1.5"/>
+  <circle cx="193" cy="285" r="5" fill="#FFF" fill-opacity=".85"/>
+  <circle cx="790" cy="326" r="4" fill="#FFF" fill-opacity=".85"/>
+  <circle cx="759" cy="692" r="6" fill="#FFF" fill-opacity=".75"/>
+</svg>

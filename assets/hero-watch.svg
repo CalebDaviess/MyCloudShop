@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="960" viewBox="0 0 1000 960" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="90" y1="80" x2="920" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0ECFF"/>
+      <stop offset=".55" stop-color="#D7D1F3"/>
+      <stop offset="1" stop-color="#F2DDEB"/>
+    </linearGradient>
+    <linearGradient id="strap" x1="453" y1="126" x2="563" y2="834" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D6B6A8"/>
+      <stop offset=".5" stop-color="#A77D76"/>
+      <stop offset="1" stop-color="#D9B7A7"/>
+    </linearGradient>
+    <linearGradient id="case" x1="335" y1="340" x2="682" y2="654" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF"/>
+      <stop offset=".5" stop-color="#D9DCE8"/>
+      <stop offset="1" stop-color="#949BB2"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="393" y1="398" x2="611" y2="593" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D263D"/>
+      <stop offset="1" stop-color="#434C72"/>
+    </linearGradient>
+    <filter id="shadow" x="220" y="212" width="560" height="598" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="27"/>
+    </filter>
+  </defs>
+  <rect x="38" y="38" width="924" height="884" rx="440" fill="url(#bg)"/>
+  <ellipse cx="504" cy="764" rx="208" ry="36" fill="#383550" fill-opacity=".18" filter="url(#shadow)"/>
+  <path d="M423 177c0-42 34-76 76-76h2c42 0 76 34 76 76v196H423V177ZM423 587h154v196c0 42-34 76-76 76h-2c-42 0-76-34-76-76V587Z" fill="url(#strap)"/>
+  <rect x="312" y="316" width="376" height="354" rx="104" fill="url(#case)"/>
+  <rect x="342" y="346" width="316" height="294" rx="82" fill="url(#screen)"/>
+  <circle cx="500" cy="492" r="88" stroke="#FFF" stroke-opacity=".24" stroke-width="8"/>
+  <path d="M500 425v69l46 29" stroke="#D8D8FF" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+  <circle cx="500" cy="492" r="7" fill="#D8D8FF"/>
+  <path d="M705 436v115" stroke="#858DAA" stroke-linecap="round" stroke-width="15"/>
+  <circle cx="500" cy="170" r="6" fill="#FFF" fill-opacity=".72"/>
+</svg>

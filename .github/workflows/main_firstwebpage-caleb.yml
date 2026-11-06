@@ -23,6 +23,10 @@ jobs:
         with:
           php-version: '8.2'
 
+      - name: Validate PHP syntax
+        shell: bash
+        run: find . -path './vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+
       - name: Check if composer.json exists
         id: check_files
         uses: andstor/file-existence-action@v1

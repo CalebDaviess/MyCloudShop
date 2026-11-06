@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="960" viewBox="0 0 1000 960" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="99" y1="50" x2="900" y2="914" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DDEAFF"/>
+      <stop offset=".55" stop-color="#D4D5F5"/>
+      <stop offset="1" stop-color="#F3E0ED"/>
+    </linearGradient>
+    <linearGradient id="case" x1="287" y1="459" x2="711" y2="733" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF"/>
+      <stop offset=".55" stop-color="#E0E2EE"/>
+      <stop offset="1" stop-color="#9EA6C1"/>
+    </linearGradient>
+    <linearGradient id="bud" x1="374" y1="230" x2="611" y2="495" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF"/>
+      <stop offset="1" stop-color="#BFC5D9"/>
+    </linearGradient>
+    <filter id="shadow" x="200" y="627" width="600" height="225" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="32"/>
+    </filter>
+  </defs>
+  <rect x="38" y="38" width="924" height="884" rx="440" fill="url(#bg)"/>
+  <ellipse cx="500" cy="741" rx="250" ry="48" fill="#343650" fill-opacity=".22" filter="url(#shadow)"/>
+  <path d="M369 291c0-69 56-125 125-125s125 56 125 125v94c0 24-19 43-43 43s-43-19-43-43v-72c0-22-17-39-39-39s-39 17-39 39v72c0 24-19 43-43 43s-43-19-43-43v-94Z" fill="url(#bud)"/>
+  <path d="M420 299v-40c0-28 23-51 51-51s51 23 51 51v40" stroke="#FFF" stroke-opacity=".8" stroke-width="8"/>
+  <path d="M651 338c0-58 47-105 105-105s105 47 105 105v70c0 22-18 40-40 40s-40-18-40-40v-54c0-17-14-31-31-31s-31 14-31 31v54c0 22-18 40-40 40s-40-18-40-40v-70Z" fill="url(#bud)"/>
+  <rect x="252" y="493" width="496" height="226" rx="94" fill="url(#case)"/>
+  <path d="M257 585c88 40 315 41 486 0" stroke="#FFF" stroke-opacity=".78" stroke-width="7"/>
+  <circle cx="500" cy="648" r="10" fill="#7772D8"/>
+  <path d="M328 535c98-25 215-26 331 0" stroke="#FFF" stroke-linecap="round" stroke-opacity=".66" stroke-width="7"/>
+</svg>
