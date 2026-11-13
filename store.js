@@ -1,5 +1,5 @@
 const menuButton = document.querySelector('.mobile-menu-toggle');
-const navigation = document.querySelector('.store-nav');
+const navigation = document.querySelector('#primary-navigation, .store-nav, .header-actions');
 
 if (menuButton && navigation) {
     const closeMenu = () => {
@@ -31,6 +31,25 @@ document.querySelectorAll('.sort-select select').forEach((select) => {
         select.form?.requestSubmit();
     });
 });
+
+// Live countdown timer for Lightning Deals & Prime next-day cutoff
+const countdownElements = document.querySelectorAll('[data-deal-countdown]');
+if (countdownElements.length > 0) {
+    let remainingSeconds = 4 * 3600 + 27 * 60 + 18;
+    const formatTime = (totalSec) => {
+        const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+        const secs = String(totalSec % 60).padStart(2, '0');
+        return `${hrs}:${mins}:${secs}`;
+    };
+    window.setInterval(() => {
+        remainingSeconds = remainingSeconds > 0 ? remainingSeconds - 1 : 4 * 3600 + 27 * 60 + 18;
+        const formatted = formatTime(remainingSeconds);
+        countdownElements.forEach((el) => {
+            el.textContent = formatted;
+        });
+    }, 1000);
+}
 
 const trackingStatus = document.querySelector('[data-tracking-live]');
 if (trackingStatus) {

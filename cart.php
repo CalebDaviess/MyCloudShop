@@ -154,9 +154,10 @@ site_shell_start('Your bag', 'cart-page');
                 <h2 class="panel-heading" id="bag-title"><?= count($items) ?> <?= count($items) === 1 ? 'good find' : 'good finds' ?></h2>
                 <?php foreach ($items as $item): ?>
                     <?php $product = $item['product']; ?>
+                    <?php $imageUrl = product_image_url((string) $product['image'], (string) $product['name']); ?>
                     <article class="bag-item">
                         <a class="bag-item-art" href="product.php?id=<?= (int) $product['id'] ?>">
-                            <img src="<?= e($product['image']) ?>" alt="">
+                            <img src="<?= e($imageUrl) ?>" alt="<?= e($product['name']) ?>">
                         </a>
                         <div class="bag-item-details">
                             <p class="product-category"><?= e($product['category']) ?></p>

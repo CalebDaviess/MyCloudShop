@@ -145,7 +145,7 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 if ($isHttps) {
     header('Strict-Transport-Security: max-age=31536000');
 }
-header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'");
+header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https://images.unsplash.com; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'");
 
 final class ShopDatabase
 {
@@ -415,44 +415,80 @@ final class ShopDatabase
 
     private function seedProducts(): void
     {
+        $catalogue = [
+            ['Aero headphones', 'Studio-grade wireless ANC over-ear headphones with 40mm beryllium drivers, spatial audio tracking, and 45-hour battery life.', 'Audio', 189.00, 24, 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85', 1],
+            ['Orbit speaker', '360-degree Hi-Res smart wireless speaker with dual passive radiators, room-filling acoustic calibration, and Wi-Fi/Bluetooth 5.3.', 'Audio', 129.00, 18, 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=85', 0],
+            ['Pulse smart watch', 'Aerospace-grade titanium smartwatch with sapphire crystal AMOLED display, dual-frequency GPS, ECG, and 7-day battery life.', 'Wearables', 219.00, 15, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=85', 1],
+            ['Halo desk light', 'Precision CNC-machined aluminium architect desk light with CRI 98+ daylight spectrum, wireless rotary dimmer, and ambient sensor.', 'Home', 89.00, 32, 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85', 0],
+            ['Echo wireless buds', 'Adaptive hybrid ANC true wireless earbuds with 6-mic AI call clarity, lossless spatial audio, and MagSafe wireless charging case.', 'Audio', 99.00, 42, 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=900&q=85', 0],
+            ['Frame instant camera', 'Retro-modern hybrid mirrorless instant camera with f/1.8 glass lens, OLED viewfinder, raw SD capture, and instant film print.', 'Photography', 149.00, 9, 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=85', 0],
+            ['Cloud charging stand', '3-in-1 Qi2 15W magnetic fast wireless charging dock in weighted aluminium for phone, watch, and wireless earbuds.', 'Accessories', 59.00, 50, 'https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?auto=format&fit=crop&w=900&q=85', 0],
+            ['Studio keyboard', 'Gasket-mounted 75% wireless mechanical keyboard with hot-swappable tactile switches, PBT keycaps, and multi-host Bluetooth/2.4GHz.', 'Computing', 109.00, 21, 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=85', 1],
+            ['NovaBook Pro 14" Laptop', 'Ultra-thin creator laptop with 14.2" 120Hz Mini-LED display, 12-core processor, 16GB unified memory, 1TB NVMe SSD, and 18-hour battery.', 'Computing', 1149.00, 11, 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=85', 1],
+            ['Apex 34" Curved OLED Monitor', '34-inch WQHD (3440x1440) 240Hz curved QD-OLED gaming and creator monitor with 0.03ms response time and 90W USB-C PD.', 'Computing', 649.00, 8, 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=900&q=85', 1],
+            ['Vortex Pro Superlight Mouse', '54g ultra-lightweight wireless esports gaming mouse with 32,000 DPI optical sensor, optical switches, and 90-hour battery life.', 'Gaming', 84.00, 36, 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=900&q=85', 0],
+            ['DualSense Edge Pro Controller', 'Pro wireless gaming controller with hall-effect thumbsticks, remappable alloy back paddles, adjustable trigger stops, and carrying case.', 'Gaming', 169.00, 19, 'https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?auto=format&fit=crop&w=900&q=85', 1],
+            ['SkyVision Mini 4K Pro Drone', 'Sub-249g foldable camera drone with 1/1.3" CMOS 4K/60fps HDR sensor, 3-axis mechanical gimbal, omnidirectional sensing, and 38-min flight.', 'Photography', 429.00, 7, 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?auto=format&fit=crop&w=900&q=85', 1],
+            ['HyperDrive 2TB NVMe SSD', 'Pocket-sized IP65 water- and drop-resistant USB 3.2 Gen 2x2 portable NVMe SSD delivering up to 2,000 MB/s read and write speeds.', 'Accessories', 139.00, 29, 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=85', 0],
+            ['StreamCast XLR Studio Mic', 'Broadcast-grade dynamic USB-C and XLR studio microphone with onboard DSP noise suppression, tap-to-mute halo, and metal boom mount.', 'Audio', 159.00, 14, 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=900&q=85', 0],
+            ['VisionVR Mixed Reality Headset', 'Standalone 4K+ pancake-optics wireless mixed reality headset with full-colour passthrough, spatial audio, and precision hand tracking.', 'Gaming', 479.00, 12, 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?auto=format&fit=crop&w=900&q=85', 1],
+        ];
+
         $existingProduct = $this->isSqlServer()
             ? $this->one('SELECT TOP 1 id FROM products')
             : $this->one('SELECT id FROM products LIMIT 1');
-        if ($existingProduct !== null) {
-            return;
-        }
 
-        $this->begin();
-        $existingProduct = $this->isSqlServer()
-            ? $this->one('SELECT TOP 1 id FROM products WITH (UPDLOCK, HOLDLOCK)')
-            : $this->one('SELECT id FROM products LIMIT 1');
-        if ($existingProduct !== null) {
+        if ($existingProduct === null) {
+            $this->begin();
+            $checkAgain = $this->isSqlServer()
+                ? $this->one('SELECT TOP 1 id FROM products WITH (UPDLOCK, HOLDLOCK)')
+                : $this->one('SELECT id FROM products LIMIT 1');
+            if ($checkAgain === null) {
+                foreach ($catalogue as $product) {
+                    $this->insert('products', [
+                        'name' => $product[0],
+                        'description' => $product[1],
+                        'category' => $product[2],
+                        'price' => $product[3],
+                        'stock' => $product[4],
+                        'image' => $product[5],
+                        'is_featured' => $product[6],
+                    ]);
+                }
+            }
             $this->commit();
+            $_SESSION['catalogue_upgraded_v2'] = true;
             return;
         }
 
-        $products = [
-            ['Aero headphones', 'Immersive sound, all-day comfort and quiet that lets you focus.', 'Audio', 189.00, 24, 'assets/hero-headphones.svg', 1],
-            ['Orbit speaker', 'Room-filling sound with a soft touch and a surprisingly small footprint.', 'Audio', 129.00, 18, 'assets/hero-speaker.svg', 0],
-            ['Pulse smart watch', 'A little more insight into your day, wrapped around your wrist.', 'Wearables', 219.00, 15, 'assets/hero-watch.svg', 1],
-            ['Halo desk light', 'Warm, adjustable light for late-night ideas and early starts.', 'Home', 89.00, 32, 'assets/hero-lamp.svg', 0],
-            ['Echo wireless buds', 'Pocket-sized listening with a secure fit and clear calls.', 'Audio', 99.00, 42, 'assets/hero-earbuds.svg', 0],
-            ['Frame instant camera', 'Keep the moments you want to hold onto, beautifully.', 'Photography', 149.00, 9, 'assets/hero-camera.svg', 0],
-            ['Cloud charging stand', 'One calm place to power up the devices you use every day.', 'Accessories', 59.00, 50, 'assets/hero-speaker.svg', 0],
-            ['Studio keyboard', 'A satisfying, quiet typing experience for your best work.', 'Accessories', 109.00, 21, 'assets/hero-keyboard.svg', 0],
-        ];
-        foreach ($products as $product) {
-            $this->insert('products', [
-                'name' => $product[0],
-                'description' => $product[1],
-                'category' => $product[2],
-                'price' => $product[3],
-                'stock' => $product[4],
-                'image' => $product[5],
-                'is_featured' => $product[6],
-            ]);
+        if (($_SESSION['catalogue_upgraded_v2'] ?? false) === true) {
+            return;
         }
-        $this->commit();
+
+        try {
+            foreach ($catalogue as $product) {
+                $existing = $this->one('SELECT id, image FROM products WHERE name = ?', [$product[0]]);
+                if ($existing === null) {
+                    $this->insert('products', [
+                        'name' => $product[0],
+                        'description' => $product[1],
+                        'category' => $product[2],
+                        'price' => $product[3],
+                        'stock' => $product[4],
+                        'image' => $product[5],
+                        'is_featured' => $product[6],
+                    ]);
+                } elseif (str_starts_with((string) $existing['image'], 'assets/hero-')) {
+                    $this->run(
+                        'UPDATE products SET image = ?, description = ?, category = ? WHERE id = ?',
+                        [$product[5], $product[1], $product[2], (int) $existing['id']]
+                    );
+                }
+            }
+            $_SESSION['catalogue_upgraded_v2'] = true;
+        } catch (Throwable $exception) {
+            error_log('CloudCart non-destructive catalogue upgrade skipped: ' . $exception->getMessage());
+        }
     }
 }
 
@@ -733,51 +769,263 @@ function oauth_redirect_uri(): string
     return env_value('ENTRA_REDIRECT_URI');
 }
 
+function catalogue_image_options(): array
+{
+    return [
+        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85' => 'Studio Wireless Headphones (Photo)',
+        'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=85' => 'Smart Spatial Speaker (Photo)',
+        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=85' => 'Titanium Smart Watch (Photo)',
+        'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85' => 'Architect LED Desk Light (Photo)',
+        'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=900&q=85' => 'True Wireless Earbuds (Photo)',
+        'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=85' => 'Mirrorless Instant Camera (Photo)',
+        'https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?auto=format&fit=crop&w=900&q=85' => '3-in-1 Magnetic Charging Dock (Photo)',
+        'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=85' => 'Mechanical Wireless Keyboard (Photo)',
+        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=85' => '14" Creator Pro Laptop (Photo)',
+        'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=900&q=85' => '34" UltraWide OLED Monitor (Photo)',
+        'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=900&q=85' => 'Pro Superlight Gaming Mouse (Photo)',
+        'https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?auto=format&fit=crop&w=900&q=85' => 'Wireless Esports Controller (Photo)',
+        'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?auto=format&fit=crop&w=900&q=85' => '4K Foldable Camera Drone (Photo)',
+        'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=85' => '2TB NVMe Portable SSD (Photo)',
+        'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=900&q=85' => 'XLR Broadcast Studio Mic (Photo)',
+        'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?auto=format&fit=crop&w=900&q=85' => '4K Mixed Reality VR Headset (Photo)',
+    ];
+}
+
+function is_valid_product_image(string $image): bool
+{
+    if (array_key_exists($image, catalogue_image_options())) {
+        return true;
+    }
+    if (preg_match('#^https://images\.unsplash\.com/photo-[a-zA-Z0-9-]+(\?[a-zA-Z0-9=&_%-]+)?$#', $image) === 1) {
+        return true;
+    }
+    if (preg_match('#^assets/[a-zA-Z0-9._-]+\.(svg|png|jpg|jpeg|webp)$#', $image) === 1) {
+        return is_file(__DIR__ . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $image));
+    }
+    return false;
+}
+
+function product_image_url(string $image, string $name = ''): string
+{
+    $legacyMap = [
+        'assets/hero-headphones.svg' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85',
+        'assets/hero-speaker.svg' => 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=85',
+        'assets/hero-watch.svg' => 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=85',
+        'assets/hero-lamp.svg' => 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85',
+        'assets/hero-earbuds.svg' => 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=900&q=85',
+        'assets/hero-camera.svg' => 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=85',
+        'assets/hero-keyboard.svg' => 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=85',
+    ];
+    if (stripos($name, 'charging') !== false && isset($legacyMap[$image])) {
+        return 'https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?auto=format&fit=crop&w=900&q=85';
+    }
+    if (isset($legacyMap[$image])) {
+        return $legacyMap[$image];
+    }
+    if (is_valid_product_image($image)) {
+        return $image;
+    }
+    return 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85';
+}
+
+function product_meta(array $product): array
+{
+    $id = max(1, (int) ($product['id'] ?? 1));
+    $price = (float) ($product['price'] ?? 99.0);
+    $isFeatured = (bool) ($product['is_featured'] ?? false);
+    $discounts = [18, 22, 15, 25, 20, 17, 24, 19];
+    $discountPct = $discounts[$id % count($discounts)];
+    $rrp = ceil(($price / (1 - ($discountPct / 100))) / 5) * 5 - 0.01;
+    if ($rrp <= $price) {
+        $rrp = $price + 25.00;
+    }
+    $ratings = [4.8, 4.7, 4.9, 4.6, 4.8, 4.7, 4.9, 4.8];
+    $rating = $ratings[$id % count($ratings)];
+    $reviews = 180 + (($id * 317) % 2400);
+    $claimedPct = 58 + (($id * 13) % 34);
+
+    if ($isFeatured && $id % 2 === 1) {
+        $badge = 'Best Seller';
+        $badgeClass = 'badge-bestseller';
+    } elseif ($isFeatured) {
+        $badge = "CloudCart's Choice";
+        $badgeClass = 'badge-choice';
+    } elseif ($discountPct >= 20) {
+        $badge = 'Limited Time Deal';
+        $badgeClass = 'badge-deal';
+    } else {
+        $badge = 'Top Rated Tech';
+        $badgeClass = 'badge-top';
+    }
+
+    $category = strtolower((string) ($product['category'] ?? 'tech'));
+    $specs = match ($category) {
+        'audio' => [
+            'Hi-Res 24-bit/96kHz acoustic architecture with adaptive room & ear calibration',
+            'Ultra-low latency Bluetooth 5.3 + multipoint dual-device pairing',
+            'Fast USB-C charging: 10 minutes charge provides up to 6 hours playback',
+            'Backed by 2-Year CloudCart UK Protection & 30-Day Free Returns',
+        ],
+        'computing' => [
+            'Engineered for high-throughput creative workflows, coding, and multitasking',
+            'Thunderbolt 4 / USB-C connectivity with fast power delivery support',
+            'Precision anodised aluminium chassis with silent thermal dissipation',
+            'Backed by 2-Year CloudCart UK Protection & Next-Day UK Dispatch',
+        ],
+        'gaming' => [
+            'Tournament-grade 1000Hz+ polling rate for sub-millisecond input response',
+            'Ergonomic lightweight construction built for marathon gaming sessions',
+            'Customisable profiles, onboard memory, and cross-platform compatibility',
+            'Backed by 2-Year CloudCart UK Protection & 30-Day Free Returns',
+        ],
+        'wearables' => [
+            'Sapphire crystal display with 2,000-nit peak outdoor readability',
+            '24/7 heart-rate, SpO2, sleep stage, and dual-frequency GPS workout tracking',
+            '5ATM water resistance with magnetic fast-charge dock included',
+            'Backed by 2-Year CloudCart UK Protection & 30-Day Free Returns',
+        ],
+        'photography' => [
+            ' Multi-element glass optics with hardware image stabilisation',
+            'High-dynamic-range sensor for crisp low-light photos and 4K video',
+            'Instant wireless transfer + USB-C high-speed RAW/JPEG offload',
+            'Backed by 2-Year CloudCart UK Protection & 30-Day Free Returns',
+        ],
+        default => [
+            'Premium aluminium and matte soft-touch finish built for daily reliability',
+            'Universal compatibility across Windows, macOS, iOS, and Android devices',
+            'Integrated over-voltage, thermal, and short-circuit safety protection',
+            'Backed by 2-Year CloudCart UK Protection & 30-Day Free Returns',
+        ],
+    };
+
+    return [
+        'rating' => number_format($rating, 1),
+        'reviews' => number_format($reviews),
+        'rrp' => $rrp,
+        'savings' => max(0.0, $rrp - $price),
+        'discount_pct' => $discountPct,
+        'badge' => $badge,
+        'badge_class' => $badgeClass,
+        'claimed_pct' => $claimedPct,
+        'specs' => $specs,
+    ];
+}
+
 function site_shell_start(string $title, string $pageClass = ''): void
 {
     $user = current_user();
     $flash = take_flash();
-    $cartCount = cart_count();
+    $cartItems = cart_items();
+    $cartCount = array_sum(array_map(static fn(array $item): int => (int) $item['quantity'], $cartItems));
+    $cartSubtotal = cart_total($cartItems);
+    $currentSearch = isset($_GET['search']) && is_string($_GET['search']) ? trim(substr($_GET['search'], 0, 80)) : '';
+    $currentCategory = isset($_GET['category']) && is_string($_GET['category']) ? trim(substr($_GET['category'], 0, 60)) : '';
+    $navCategories = ['Computing', 'Gaming', 'Audio', 'Wearables', 'Photography', 'Accessories', 'Home'];
     ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f5f5f7">
-    <title><?= e($title) ?> · CloudCart</title>
+    <meta name="theme-color" content="#0f172a">
+    <title><?= e($title) ?> · CloudCart.co.uk</title>
     <link rel="stylesheet" href="styles.css">
     <script src="store.js" defer></script>
 </head>
 <body class="store-page <?= e($pageClass) ?>">
     <a class="skip-link" href="#main-content">Skip to content</a>
+
     <header class="store-header">
-        <a class="store-brand" href="home.php" aria-label="CloudCart home">cloud<span>cart</span><i aria-hidden="true">.</i></a>
-        <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">Menu</button>
-        <nav class="store-nav" id="primary-navigation" aria-label="Main navigation">
-            <a href="home.php#shop">Shop</a>
-            <a href="home.php#story">Our approach</a>
-            <?php if ($user !== null): ?>
-                <a href="account.php">Your orders</a>
-                <?php if ($user['is_admin']): ?><a href="admin.php">Manage store</a><?php endif; ?>
-            <?php else: ?>
-                <a href="login.php">Sign in</a>
-            <?php endif; ?>
-        </nav>
-        <div class="header-actions">
-            <?php if ($user !== null): ?>
-                <span class="header-greeting">Hi, <?= e(explode(' ', (string) $user['name'])[0]) ?></span>
-                <form action="logout.php" method="post" class="inline-form">
-                    <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
-                    <button class="text-button" type="submit">Sign out</button>
-                </form>
-            <?php else: ?>
-                <a class="header-signin" href="register.php">Join us</a>
-            <?php endif; ?>
-            <a class="bag-link" href="cart.php" aria-label="Shopping bag, <?= $cartCount ?> items">
-                Bag <span class="bag-count"><?= $cartCount ?></span>
-            </a>
+        <div class="header-main-bar">
+            <div class="header-brand-group">
+                <a class="store-brand" href="home.php" aria-label="CloudCart UK home">
+                    <span class="brand-main">cloud<span>cart</span><small>.co.uk</small></span>
+                    <span class="brand-prime-tag"><i aria-hidden="true">⚡</i> prime tech</span>
+                </a>
+                <a class="header-location" href="home.php#shop" aria-label="UK Next-Day Delivery">
+                    <span class="loc-pin" aria-hidden="true">📍</span>
+                    <span>
+                        <small>Deliver to Cardiff &amp; UK</small>
+                        <strong>FREE Next-Day over £100</strong>
+                    </span>
+                </a>
+            </div>
+
+            <form class="header-search-bar" method="get" action="home.php" role="search">
+                <label class="header-search-category">
+                    <span class="visually-hidden">Department</span>
+                    <select name="category" aria-label="Search department">
+                        <option value="">All Tech</option>
+                        <?php foreach ($navCategories as $navCat): ?>
+                            <option value="<?= e($navCat) ?>" <?= $currentCategory === $navCat ? 'selected' : '' ?>><?= e($navCat) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+                <label class="header-search-input">
+                    <span class="visually-hidden">Search CloudCart.co.uk</span>
+                    <input type="search" name="search" value="<?= e($currentSearch) ?>" placeholder="Search laptops, 240Hz OLED monitors, ANC headphones, gaming gear…">
+                </label>
+                <button class="header-search-submit" type="submit" aria-label="Search">
+                    <span aria-hidden="true">⌕</span>
+                </button>
+            </form>
+
+            <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">Menu ☰</button>
+
+            <div class="header-actions" id="primary-navigation">
+                <?php if ($user !== null): ?>
+                    <a class="header-action-item" href="account.php">
+                        <small>Hello, <?= e(explode(' ', (string) $user['name'])[0]) ?></small>
+                        <strong>Account &amp; Security</strong>
+                    </a>
+                    <a class="header-action-item" href="account.php#orders-title">
+                        <small>Track &amp; Manage</small>
+                        <strong>Returns &amp; Orders</strong>
+                    </a>
+                    <?php if ($user['is_admin']): ?>
+                        <a class="header-action-item header-admin-pill" href="admin.php">
+                            <small>Admin Studio</small>
+                            <strong>Manage Store</strong>
+                        </a>
+                    <?php endif; ?>
+                    <form action="logout.php" method="post" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                        <button class="header-signout-btn" type="submit">Sign out</button>
+                    </form>
+                <?php else: ?>
+                    <a class="header-action-item" href="login.php">
+                        <small>Hello, sign in</small>
+                        <strong>Account &amp; Lists</strong>
+                    </a>
+                    <a class="header-action-item" href="register.php">
+                        <small>New customer?</small>
+                        <strong>Create Account</strong>
+                    </a>
+                <?php endif; ?>
+
+                <a class="bag-link" href="cart.php" aria-label="Shopping basket, <?= $cartCount ?> items">
+                    <span class="bag-icon-wrap">
+                        <span class="bag-count"><?= $cartCount ?></span>
+                        <span class="bag-svg" aria-hidden="true">🛒</span>
+                    </span>
+                    <span class="bag-label">
+                        <small>Basket</small>
+                        <strong><?= money($cartSubtotal) ?></strong>
+                    </span>
+                </a>
+            </div>
         </div>
+
+        <nav class="store-subnav" aria-label="Department navigation">
+            <div class="subnav-inner">
+                <a class="subnav-link <?= $currentCategory === '' && $currentSearch === '' ? 'is-active' : '' ?>" href="home.php">☰ All Departments</a>
+                <a class="subnav-link subnav-deal" href="home.php#deals">🔥 Today’s Lightning Deals</a>
+                <?php foreach ($navCategories as $navCat): ?>
+                    <a class="subnav-link <?= $currentCategory === $navCat ? 'is-active' : '' ?>" href="home.php?category=<?= rawurlencode($navCat) ?>#shop"><?= e($navCat) ?></a>
+                <?php endforeach; ?>
+                <span class="subnav-promise">✓ <strong>Prime Tech:</strong> Free Next-Day UK Delivery over £100 &amp; 30-Day Returns</span>
+            </div>
+        </nav>
     </header>
     <?php if ($flash !== null): ?>
         <div class="flash flash-<?= e($flash['type'] ?? 'info') ?>" role="<?= ($flash['type'] ?? '') === 'error' ? 'alert' : 'status' ?>">
@@ -793,9 +1041,53 @@ function site_shell_end(): void
     ?>
     </main>
     <footer class="store-footer">
-        <a class="store-brand footer-logo" href="home.php">cloud<span>cart</span><i aria-hidden="true">.</i></a>
-        <p>Thoughtful tech, made for everyday.</p>
-        <span>Demo checkout · No real payment is taken</span>
+        <a class="footer-back-top" href="#main-content">Back to top ↑</a>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <a class="store-brand footer-logo" href="home.php">
+                    <span class="brand-main">cloud<span>cart</span><small>.co.uk</small></span>
+                </a>
+                <p>The UK’s flagship destination for high-performance computing, spatial audio, esports hardware, and creator gear.</p>
+                <div class="footer-badges">
+                    <span>⚡ Next-Day UK Dispatch</span>
+                    <span>🔒 256-Bit TLS &amp; TOTP MFA</span>
+                    <span>☁️ Powered by Microsoft Azure</span>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Shop Departments</h3>
+                <ul>
+                    <li><a href="home.php?category=Computing#shop">Laptops &amp; OLED Monitors</a></li>
+                    <li><a href="home.php?category=Gaming#shop">PC &amp; Console Gaming</a></li>
+                    <li><a href="home.php?category=Audio#shop">ANC Headphones &amp; Hi-Fi</a></li>
+                    <li><a href="home.php?category=Wearables#shop">Smartwatches &amp; Fitness</a></li>
+                    <li><a href="home.php?category=Photography#shop">Cameras &amp; 4K Drones</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Your Account &amp; Orders</h3>
+                <ul>
+                    <li><a href="account.php">Track Your Orders</a></li>
+                    <li><a href="account.php#favourites">Saved Wish List</a></li>
+                    <li><a href="account.php#security">Authenticator MFA &amp; Security</a></li>
+                    <li><a href="cart.php">View Shopping Basket</a></li>
+                    <li><a href="login.php">Sign In / Register</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>CloudCart Guarantee</h3>
+                <ul>
+                    <li><a href="home.php#deals">Today’s Lightning Deals</a></li>
+                    <li><a href="home.php#shop">Free UK Delivery Over £100</a></li>
+                    <li><a href="home.php#shop">30-Day Money-Back Guarantee</a></li>
+                    <li><a href="home.php#shop">2-Year UK Hardware Warranty</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <?= date('Y') ?> CloudCart.co.uk · Multi-Tier Cloud E-Commerce Demonstrator (Azure App Service + Azure SQL + Azure Functions)</p>
+            <span>Simulated Demo Checkout · No Real Payment Is Taken</span>
+        </div>
     </footer>
 </body>
 </html>

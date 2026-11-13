@@ -167,11 +167,12 @@ site_shell_start('Your account', 'account-page');
         <?php else: ?>
             <div class="favourites-grid">
                 <?php foreach ($favourites as $favourite): ?>
+                    <?php $favImg = product_image_url((string) $favourite['image'], (string) $favourite['name']); ?>
                     <article class="favourite-card">
                         <?php if ((bool) $favourite['is_active']): ?>
-                            <a class="favourite-art" href="product.php?id=<?= (int) $favourite['id'] ?>"><img src="<?= e($favourite['image']) ?>" alt=""></a>
+                            <a class="favourite-art" href="product.php?id=<?= (int) $favourite['id'] ?>"><img src="<?= e($favImg) ?>" alt="<?= e($favourite['name']) ?>"></a>
                         <?php else: ?>
-                            <div class="favourite-art"><img src="<?= e($favourite['image']) ?>" alt=""></div>
+                            <div class="favourite-art"><img src="<?= e($favImg) ?>" alt="<?= e($favourite['name']) ?>"></div>
                         <?php endif; ?>
                         <div><p class="product-category"><?= e($favourite['category']) ?></p><h3><?php if ((bool) $favourite['is_active']): ?><a href="product.php?id=<?= (int) $favourite['id'] ?>"><?= e($favourite['name']) ?></a><?php else: ?><?= e($favourite['name']) ?> <small>Taking a rest</small><?php endif; ?></h3><strong><?= money((float) $favourite['price']) ?></strong></div>
                         <form method="post">

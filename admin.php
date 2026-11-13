@@ -42,8 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             || $category === '' || strlen($category) > 60
             || $price === false || $price <= 0 || $price > 99999
             || $stock === false || $stock < 0 || $stock > 1000000
-            || !preg_match('#^assets/[a-zA-Z0-9._-]+\.svg$#', $image)
-            || !is_file(__DIR__ . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $image))
+            || !is_valid_product_image($image)
         ) {
             set_flash('error', 'Check the product details and choose an image from the available collection.');
             redirect('admin.php');
@@ -81,15 +80,7 @@ $orderSuffix = db()->isSqlServer() ? '' : ' LIMIT 30';
 $orders = db()->all(
     $orderLimit . ' o.id, o.status, o.total, o.payment_reference, o.created_at, o.delivery_name, o.delivery_address, u.email FROM orders o JOIN users u ON u.id = o.user_id ORDER BY o.created_at DESC, o.id DESC' . $orderSuffix
 );
-$images = [
-    'assets/hero-headphones.svg',
-    'assets/hero-speaker.svg',
-    'assets/hero-watch.svg',
-    'assets/hero-lamp.svg',
-    'assets/hero-camera.svg',
-    'assets/hero-earbuds.svg',
-    'assets/hero-keyboard.svg',
-];
+$images = catalogue_image_options();
 site_shell_start('Store studio', 'admin-page');
 ?>
     <section class="page-intro admin-intro">
@@ -111,7 +102,7 @@ site_shell_start('Store studio', 'admin-page');
             <label class="form-field"><span>Price (GBP)</span><input name="price" type="number" min="0.01" max="99999" step="0.01" required></label>
             <label class="form-field"><span>Available stock</span><input name="stock" type="number" min="0" max="1000000" step="1" required></label>
             <label class="form-field admin-wide"><span>A few words about it</span><textarea name="description" rows="3" maxlength="1000" required></textarea></label>
-            <label class="form-field"><span>Product artwork</span><select name="image" required><?php foreach ($images as $image): ?><option value="<?= e($image) ?>"><?= e(str_replace(['assets/hero-', '.svg'], '', $image)) ?></option><?php endforeach; ?></select></label>
+            <label class="form-field"><span>Product photography</span><select name="image" required><?php foreach ($images as $imgUrl => $imgLabel): ?><option value="<?= e($imgUrl) ?>"><?= e($imgLabel) ?></option><?php endforeach; ?></select></label>
             <label class="check-field"><input type="checkbox" name="is_featured" value="1"> <span>Make this one of our favourites</span></label>
             <button class="button button-dark" type="submit">Add to the collection <span aria-hidden="true">↗</span></button>
         </form>
@@ -154,8 +145,9 @@ site_shell_start('Store studio', 'admin-page');
         </div>
         <div class="admin-product-list">
             <?php foreach ($catalogue as $product): ?>
+                <?php $currentImgUrl = product_image_url((string) $product['image'], (string) $product['name']); ?>
                 <article class="admin-product-card <?= !(bool) $product['is_active'] ? 'is-archived' : '' ?>">
-                    <img src="<?= e($product['image']) ?>" alt="" loading="lazy">
+                    <img src="<?= e($currentImgUrl) ?>" alt="<?= e($product['name']) ?>" loading="lazy">
                     <form method="post" class="admin-edit-form">
                         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                         <input type="hidden" name="action" value="save">
@@ -165,7 +157,7 @@ site_shell_start('Store studio', 'admin-page');
                         <label class="form-field"><span>Price (GBP)</span><input name="price" type="number" min="0.01" step="0.01" value="<?= e($product['price']) ?>" required></label>
                         <label class="form-field"><span>Stock</span><input name="stock" type="number" min="0" max="1000000" step="1" value="<?= (int) $product['stock'] ?>" required></label>
                         <label class="form-field admin-wide"><span>Description</span><textarea name="description" rows="2" maxlength="1000" required><?= e($product['description']) ?></textarea></label>
-                        <label class="form-field"><span>Artwork</span><select name="image"><?php foreach ($images as $image): ?><option value="<?= e($image) ?>" <?= $image === $product['image'] ? 'selected' : '' ?>><?= e(str_replace(['assets/hero-', '.svg'], '', $image)) ?></option><?php endforeach; ?></select></label>
+                        <label class="form-field"><span>Photography</span><select name="image"><?php foreach ($images as $imgUrl => $imgLabel): ?><option value="<?= e($imgUrl) ?>" <?= $imgUrl === $product['image'] || $imgUrl === $currentImgUrl ? 'selected' : '' ?>><?= e($imgLabel) ?></option><?php endforeach; ?></select></label>
                         <label class="check-field"><input type="checkbox" name="is_featured" value="1" <?= (bool) $product['is_featured'] ? 'checked' : '' ?>> <span>Featured favourite</span></label>
                         <div class="admin-product-actions">
                             <button class="button button-dark" type="submit">Save changes</button>
