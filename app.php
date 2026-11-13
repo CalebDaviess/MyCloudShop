@@ -157,10 +157,10 @@ final class ShopDatabase
     public function __construct()
     {
         $configuredDriver = strtolower(env_value('DB_DRIVER', env_value('MYSHOP_DB_DRIVER')));
-        $server = env_value('DB_SERVER', env_value('SQLSRV_SERVER'));
+        $server = env_value('DB_SERVER', env_value('SQLSRV_SERVER', 'tcp:mycardiffmet-caleb.database.windows.net,1433'));
         $password = env_value('DB_PASSWORD', env_value('SQLSRV_PWD'));
-        $database = env_value('DB_DATABASE', env_value('SQLSRV_DATABASE'));
-        $username = env_value('DB_USERNAME', env_value('SQLSRV_UID'));
+        $database = env_value('DB_DATABASE', env_value('SQLSRV_DATABASE', 'myDatabase'));
+        $username = env_value('DB_USERNAME', env_value('SQLSRV_UID', 'myadmin'));
 
         $wantsSqlSrv = $configuredDriver === 'sqlsrv' || ($configuredDriver === '' && $server !== '' && $password !== '');
         $sqlsrvBackedOff = (int) ($_SESSION['sqlsrv_unavailable_until'] ?? 0) > time();
@@ -179,7 +179,7 @@ final class ShopDatabase
                     'PWD' => $password,
                     'Encrypt' => true,
                     'TrustServerCertificate' => false,
-                    'LoginTimeout' => 3,
+                    'LoginTimeout' => 8,
                 ];
                 $connection = @sqlsrv_connect($server, $options);
                 if ($connection === false) {
@@ -200,7 +200,7 @@ final class ShopDatabase
                     @sqlsrv_close($this->sqlsrv);
                 }
                 $this->sqlsrv = null;
-                $_SESSION['sqlsrv_unavailable_until'] = time() + 60;
+                $_SESSION['sqlsrv_unavailable_until'] = time() + 15;
             }
         }
 
