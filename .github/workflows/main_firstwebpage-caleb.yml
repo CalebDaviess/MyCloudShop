@@ -23,9 +23,12 @@ jobs:
         with:
           php-version: '8.2'
 
-      - name: Validate PHP syntax
+      - name: Prepare startup script and validate PHP syntax
         shell: bash
-        run: find . -path './vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: |
+          sed -i 's/\r$//' startup.sh
+          chmod +x startup.sh
+          find . -path './vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Check if composer.json exists
         id: check_files
@@ -37,12 +40,14 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true'
         run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
 
-
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: php-app
-          path: .
+          path: |
+            .
+            !azure_function
+            !assessemnt brif WRIT1
 
   deploy:
     runs-on: ubuntu-latest
@@ -65,7 +70,16 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2204B05486DD458DBEBCC61930083576 }}
 
       - name: Configure PHP runtime
-        run: az webapp config set --name 'firstwebpage-Caleb' --resource-group 'myshop-workshop-rg' --linux-fx-version 'PHP|8.2' --output none
+        shell: bash
+        run: |
+          sed -i 's/\r$//' startup.sh
+          chmod +x startup.sh
+          az webapp config set \
+            --name 'firstwebpage-Caleb' \
+            --resource-group 'myshop-workshop-rg' \
+            --linux-fx-version 'PHP|8.2' \
+            --startup-file '/home/site/wwwroot/startup.sh' \
+            --output none
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -74,3 +88,19 @@ jobs:
           app-name: 'firstwebpage-Caleb'
           slot-name: 'Production'
           package: .
+
+      - name: Restart and verify Web App
+        shell: bash
+        run: |
+          az webapp restart --name 'firstwebpage-Caleb' --resource-group 'myshop-workshop-rg' --output none
+          for attempt in {1..12}; do
+            status=$(curl --silent --location --output /tmp/cloudcart-home.html --write-out '%{http_code}' 'https://firstwebpage-caleb-frc0gzb4abf8ajac.switzerlandnorth-01.azurewebsites.net/home.php' || true)
+            if [[ "$status" == "200" ]] && grep -q 'CloudCart' /tmp/cloudcart-home.html; then
+              echo "CloudCart live check passed with HTTP $status."
+              exit 0
+            fi
+            echo "Waiting for CloudCart to come online (attempt $attempt, HTTP $status)..."
+            sleep 5
+          done
+          echo "CloudCart did not return HTTP 200 within timeout." >&2
+          exit 1

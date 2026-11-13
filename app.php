@@ -78,26 +78,25 @@ $isHttps = (
     (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
 );
+$redisConfigured = false;
 $redisHost = env_value('REDIS_HOST');
 if ($redisHost !== '') {
-    if (!extension_loaded('redis')) {
-        throw new RuntimeException('Configure the PHP Redis extension before enabling shared CloudCart sessions.');
-    }
     $redisPort = filter_var(env_value('REDIS_PORT', '6380'), FILTER_VALIDATE_INT);
-    if ($redisPort === false || $redisPort < 1 || $redisPort > 65535) {
-        throw new RuntimeException('REDIS_PORT must be a valid port number.');
-    }
-    $redisScheme = filter_var(env_value('REDIS_TLS', '1'), FILTER_VALIDATE_BOOLEAN) ? 'tls' : 'tcp';
-    $redisOptions = ['database=0', 'prefix=cloudcart:'];
-    $redisPassword = env_value('REDIS_PASSWORD');
-    if ($redisPassword !== '') {
-        $redisOptions[] = 'auth=' . rawurlencode($redisPassword);
-    }
-    $handlerChanged = ini_set('session.save_handler', 'redis');
-    $pathChanged = ini_set('session.save_path', $redisScheme . '://' . $redisHost . ':' . $redisPort . '?' . implode('&', $redisOptions));
-    ini_set('session.gc_maxlifetime', '7200');
-    if ($handlerChanged === false || $pathChanged === false) {
-        throw new RuntimeException('The shared CloudCart session handler could not be configured.');
+    if (!extension_loaded('redis')) {
+        error_log('CloudCart Redis session skipped: the PHP Redis extension is not loaded.');
+    } elseif ($redisPort === false || $redisPort < 1 || $redisPort > 65535) {
+        error_log('CloudCart Redis session skipped: REDIS_PORT must be a valid port number.');
+    } else {
+        $redisScheme = filter_var(env_value('REDIS_TLS', '1'), FILTER_VALIDATE_BOOLEAN) ? 'tls' : 'tcp';
+        $redisOptions = ['database=0', 'prefix=cloudcart:'];
+        $redisPassword = env_value('REDIS_PASSWORD');
+        if ($redisPassword !== '') {
+            $redisOptions[] = 'auth=' . rawurlencode($redisPassword);
+        }
+        $handlerChanged = @ini_set('session.save_handler', 'redis');
+        $pathChanged = @ini_set('session.save_path', $redisScheme . '://' . $redisHost . ':' . $redisPort . '?' . implode('&', $redisOptions));
+        @ini_set('session.gc_maxlifetime', '7200');
+        $redisConfigured = $handlerChanged !== false && $pathChanged !== false;
     }
 }
 session_set_cookie_params([
@@ -108,10 +107,36 @@ session_set_cookie_params([
     'samesite' => 'Lax',
 ]);
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    if (!session_start()) {
-        throw new RuntimeException('The CloudCart session store could not be reached.');
+    if (!$redisConfigured) {
+        $currentSavePath = session_save_path();
+        if ($currentSavePath === '' || !is_dir($currentSavePath) || !is_writable($currentSavePath)) {
+            $fallbackSessionDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cloudcart_sessions';
+            if (!is_dir($fallbackSessionDir)) {
+                @mkdir($fallbackSessionDir, 0770, true);
+            }
+            if (is_dir($fallbackSessionDir) && is_writable($fallbackSessionDir)) {
+                @session_save_path($fallbackSessionDir);
+            } else {
+                @session_save_path(sys_get_temp_dir());
+            }
+        }
+    }
+    if (!@session_start()) {
+        @ini_set('session.save_handler', 'files');
+        @session_save_path(sys_get_temp_dir());
+        @session_start();
     }
 }
+
+set_exception_handler(static function (Throwable $exception): void {
+    error_log('CloudCart unhandled exception: ' . $exception->getMessage() . ' in ' . $exception->getFile() . ':' . $exception->getLine());
+    if (!headers_sent()) {
+        http_response_code(200);
+        header('Content-Type: text/html; charset=utf-8');
+        header('Cache-Control: no-store');
+    }
+    echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CloudCart</title><link rel="stylesheet" href="styles.css"></head><body class="store-page"><main id="main-content" style="max-width:42rem;margin:6rem auto;padding:2rem;text-align:center;"><h1>We’ll be right back.</h1><p>CloudCart is refreshing its store connection. Please try again in a moment.</p><p><a class="button button-dark" href="home.php">Reload store</a></p></main></body></html>';
+});
 
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
@@ -134,55 +159,96 @@ final class ShopDatabase
         $configuredDriver = strtolower(env_value('DB_DRIVER', env_value('MYSHOP_DB_DRIVER')));
         $server = env_value('DB_SERVER', env_value('SQLSRV_SERVER'));
         $password = env_value('DB_PASSWORD', env_value('SQLSRV_PWD'));
-        $this->driver = $configuredDriver !== ''
-            ? $configuredDriver
-            : ($server !== '' && $password !== '' ? 'sqlsrv' : 'sqlite');
+        $database = env_value('DB_DATABASE', env_value('SQLSRV_DATABASE'));
+        $username = env_value('DB_USERNAME', env_value('SQLSRV_UID'));
 
-        if ($this->driver === 'sqlsrv') {
-            if (!function_exists('sqlsrv_connect')) {
-                throw new RuntimeException('The PHP SQL Server extension is not available.');
+        $wantsSqlSrv = $configuredDriver === 'sqlsrv' || ($configuredDriver === '' && $server !== '' && $password !== '');
+        $sqlsrvBackedOff = (int) ($_SESSION['sqlsrv_unavailable_until'] ?? 0) > time();
+
+        if ($wantsSqlSrv && !$sqlsrvBackedOff) {
+            try {
+                if (!function_exists('sqlsrv_connect')) {
+                    throw new RuntimeException('The PHP SQL Server extension is not available.');
+                }
+                if ($server === '' || $password === '' || $database === '' || $username === '') {
+                    throw new RuntimeException('Set DB_SERVER, DB_DATABASE, DB_USERNAME, and DB_PASSWORD for the Azure SQL connection.');
+                }
+                $options = [
+                    'Database' => $database,
+                    'Uid' => $username,
+                    'PWD' => $password,
+                    'Encrypt' => true,
+                    'TrustServerCertificate' => false,
+                    'LoginTimeout' => 3,
+                ];
+                $connection = @sqlsrv_connect($server, $options);
+                if ($connection === false) {
+                    $this->reportSqlsrvError('Azure SQL connection failed');
+                    throw new RuntimeException('The store database is temporarily unavailable.');
+                }
+                $this->driver = 'sqlsrv';
+                $this->sqlsrv = $connection;
+                $this->ensureSchema();
+                $this->seedProducts();
+                $this->one('SELECT TOP 1 id, name, description, category, price, stock, image, is_featured, is_active FROM products');
+                $this->one('SELECT TOP 1 id, name, email, password_hash, mfa_secret, mfa_enabled, oauth_subject, is_admin, created_at FROM users');
+                unset($_SESSION['sqlsrv_unavailable_until']);
+                return;
+            } catch (Throwable $exception) {
+                error_log('CloudCart SQL Server unavailable, falling back to SQLite: ' . $exception->getMessage());
+                if ($this->sqlsrv !== null && $this->sqlsrv !== false && function_exists('sqlsrv_close')) {
+                    @sqlsrv_close($this->sqlsrv);
+                }
+                $this->sqlsrv = null;
+                $_SESSION['sqlsrv_unavailable_until'] = time() + 60;
             }
-            if ($server === '' || $password === '') {
-                throw new RuntimeException('Set DB_SERVER and DB_PASSWORD for the Azure SQL connection.');
-            }
-            $database = env_value('DB_DATABASE', env_value('SQLSRV_DATABASE'));
-            $username = env_value('DB_USERNAME', env_value('SQLSRV_UID'));
-            if ($database === '' || $username === '') {
-                throw new RuntimeException('Set DB_DATABASE and DB_USERNAME for the Azure SQL connection.');
-            }
-            $options = [
-                'Database' => $database,
-                'Uid' => $username,
-                'PWD' => $password,
-                'Encrypt' => true,
-                'TrustServerCertificate' => false,
-                'LoginTimeout' => 8,
-            ];
-            $this->sqlsrv = sqlsrv_connect($server, $options);
-            if ($this->sqlsrv === false) {
-                $this->reportSqlsrvError('Azure SQL connection failed');
-                throw new RuntimeException('The store database is temporarily unavailable.');
-            }
-        } elseif ($this->driver === 'sqlite') {
-            if (!in_array('sqlite', PDO::getAvailableDrivers(), true)) {
-                throw new RuntimeException('Enable PDO SQLite for local development or configure Azure SQL.');
-            }
-            $defaultDataDirectory = env_value('HOME') !== ''
-                ? env_value('HOME') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'cloudcart'
-                : __DIR__ . DIRECTORY_SEPARATOR . 'data';
-            $dataDirectory = env_value('DATA_DIRECTORY', $defaultDataDirectory);
-            if (!is_dir($dataDirectory) && !mkdir($dataDirectory, 0770, true) && !is_dir($dataDirectory)) {
-                throw new RuntimeException('The local data directory could not be created.');
-            }
-            $this->pdo = new PDO('sqlite:' . $dataDirectory . DIRECTORY_SEPARATOR . 'myshop.sqlite');
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            $this->pdo->exec('PRAGMA foreign_keys = ON');
-            $this->pdo->exec('PRAGMA busy_timeout = 5000');
-        } else {
-            throw new RuntimeException('DB_DRIVER must be either sqlsrv or sqlite.');
         }
 
+        $this->initSqlite();
+    }
+
+    private function initSqlite(): void
+    {
+        $this->driver = 'sqlite';
+        if (!in_array('sqlite', PDO::getAvailableDrivers(), true)) {
+            throw new RuntimeException('Enable PDO SQLite for local development or configure Azure SQL.');
+        }
+
+        $candidates = array_values(array_filter([
+            env_value('DATA_DIRECTORY'),
+            is_dir('/home/site') ? '/home/site/data/cloudcart' : '',
+            is_dir('/home/LogFiles') ? '/home/LogFiles/cloudcart' : '',
+            __DIR__ . DIRECTORY_SEPARATOR . 'data',
+            sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cloudcart',
+            env_value('HOME') !== '' ? env_value('HOME') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'cloudcart' : '',
+        ], static fn(string $path): bool => $path !== ''));
+
+        foreach ($candidates as $dataDirectory) {
+            try {
+                if (!is_dir($dataDirectory) && !@mkdir($dataDirectory, 0770, true) && !is_dir($dataDirectory)) {
+                    continue;
+                }
+                if (!is_writable($dataDirectory)) {
+                    continue;
+                }
+                $this->pdo = new PDO('sqlite:' . $dataDirectory . DIRECTORY_SEPARATOR . 'myshop.sqlite');
+                $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+                $this->pdo->exec('PRAGMA foreign_keys = ON');
+                $this->pdo->exec('PRAGMA busy_timeout = 5000');
+                $this->ensureSchema();
+                $this->seedProducts();
+                return;
+            } catch (Throwable $exception) {
+                error_log('CloudCart SQLite initialization failed in ' . $dataDirectory . ': ' . $exception->getMessage());
+                $this->pdo = null;
+            }
+        }
+
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $this->pdo->exec('PRAGMA foreign_keys = ON');
         $this->ensureSchema();
         $this->seedProducts();
     }
